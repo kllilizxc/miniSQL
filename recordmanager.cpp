@@ -34,7 +34,7 @@ public:
 	string DbName;
 	uint32_t TableNum;
 	map<uint32_t, DbInfoRec> DbInfoRecs;
-	char * ConvertToMemblock();
+	char * ConvertToMemblock(size_t*);
 };
 
 DbInfo::DbInfo(char* memblock) {
@@ -55,12 +55,14 @@ DbInfo::DbInfo(char* memblock) {
 	}
 }
 
-char *DbInfo::ConvertToMemblock() {
+char *DbInfo::ConvertToMemblock(size_t *retPptr) {
 	const uint32_t HeadOffset = 36;
 	const uint32_t RecLength = 36;
+	size_t size = HeadOffset + RecLength * TableNum;
+	*retPptr = size;
 
 	char* memblock;
-	memblock = new char[HeadOffset + RecLength * TableNum];
+	memblock = new char[size];
 	memcpy(memblock, StringToChar(DbName, 32), 32);
 	memcpy(memblock + 32, IntToChar(TableNum), 4);
 
@@ -114,6 +116,8 @@ STATUS CreateTableFile(string fileName, string nextFileName, string prevFileName
 
 STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 	//open file
+	size_t *pptrs = new size_t();
+	size_t size1;
 	streampos size;
 	char *memblock;
 	ifstream DbInfoFile(DB_FILE_NAME.data(), ios::in | ios::binary | ios::ate);
@@ -153,12 +157,14 @@ STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 	//create table file
 	CreateTableFile(TempDbInfoRec.HeadFileName, "", "", 0, 0);
 	//write back to db info
-	memblock = Dbinfo.ConvertToMemblock();
+
+	memblock = Dbinfo.ConvertToMemblock(pptrs);
 	ofstream file(DB_FILE_NAME.data(), ios::out | ios::binary);
 	if (file.is_open())
 	{
-		file.write(memblock, sizeof(memblock));
+		file.write(memblock, *pptrs);
 		file.close();
+		delete pptrs;
 		delete[] memblock;
 
 		cout << "the entire file content is written to disk." << endl;

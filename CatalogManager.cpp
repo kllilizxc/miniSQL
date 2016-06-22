@@ -51,7 +51,7 @@ void CatalogManager::setTableAttrProperty(int tableId, string attrName, byte pro
     TableMeta *tableMeta = findTableMetaFromId(tableId);
 
     Attr *attr = tableMeta->getAttrByName(attrName);
-    attr->property = property;
+    attr->property |= property;
 }
 
 void CatalogManager::writeToFile() {

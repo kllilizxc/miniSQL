@@ -42,7 +42,7 @@ struct Attr {
     int charNum;
     byte property;
 
-    Attr(TableMeta::ATTRTYPE type, byte property, int charNum = 0);
+    Attr(TableMeta::ATTRTYPE type, byte property = 0, int charNum = 0);
 };
 
 

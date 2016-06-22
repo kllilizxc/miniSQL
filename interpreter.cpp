@@ -91,7 +91,7 @@ void Interpreter::createTable() {
             getNextToken(Token::LP);
             Token primaryKey = getNextToken(Token::ID);
             do {
-                catalogManager->setTableAttrProperty(tableId, primaryKey.String(), Token::PRIMARY);
+                catalogManager->setTableAttrProperty(tableId, primaryKey.String(), Attr::PRIMARY);
                 temp = getNextToken();
                 if (temp.type == Token::COMMA) {
                     primaryKey = getNextToken(Token::ID);
@@ -104,7 +104,7 @@ void Interpreter::createTable() {
         Token endToken = getNextToken();
         if (endToken.type == Token::UNIQUE) {
             //unique
-            catalogManager->setTableAttrProperty(tableId, attrName.String(), Token::UNIQUE);
+            catalogManager->setTableAttrProperty(tableId, attrName.String(), Attr::UNIQUE);
             endToken = getNextToken();
         }
         if (endToken.type == Token::COMMA) {

@@ -14,7 +14,8 @@ private:
     void *value;
 public:
     enum conType {
-        ATTR, INT, FLOAT, CHAR,
+        ATTR_INT, ATTR_FLOAT, ATTR_CHAR,
+        INT, FLOAT, CHAR,
         EQ, NEQ, GT, GEQ, LT, LEQ,
         AND, OR, NOT,
         LP, RP

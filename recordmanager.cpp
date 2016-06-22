@@ -252,7 +252,9 @@ int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
 }
 
 bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
-	if (condition->left->type != ConditionNode::ATTR
+	if (condition->left->type != ConditionNode::ATTR_INT
+		&& condition->left->type != ConditionNode::ATTR_FLOAT
+		&& condition->left->type != ConditionNode::ATTR_FLOAT
 		&& condition->left->type != ConditionNode::INT
 		&& condition->left->type != ConditionNode::FLOAT
 		&& condition->left->type != ConditionNode::CHAR) {
@@ -286,7 +288,9 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 		//转换左边
 		switch (condition->left->type)
 		{
-		case ConditionNode::ATTR:
+		case ConditionNode::ATTR_INT:
+		case ConditionNode::ATTR_FLOAT:
+		case ConditionNode::ATTR_CHAR:
 			switch (tableRow->at(condition->left->getAttrValue())->type) {
 			case TableMeta::INT:
 				LeftI = *(tableRow->at(condition->left->getAttrValue())->ip);
@@ -320,7 +324,9 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 		//右边
 		switch (condition->right->type)
 		{
-		case ConditionNode::ATTR:
+		case ConditionNode::ATTR_INT:
+		case ConditionNode::ATTR_FLOAT:
+		case ConditionNode::ATTR_CHAR:
 			switch (tableRow->at(condition->right->getAttrValue())->type) {
 			case TableMeta::INT:
 				RightI = *(tableRow->at(condition->right->getAttrValue())->ip);

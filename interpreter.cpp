@@ -186,7 +186,7 @@ void Interpreter::select() {
     //where
     ConditionNode *con = NULL;
     if (hasCondition) {
-        con = buildConditionTree();
+        con = buildConditionTree(*tableMeta);
     }
 
     RecordManager::GetRecords(*tableMeta, attrIndexes, con);
@@ -248,14 +248,14 @@ void Interpreter::deleteFrom() {
     //conditions
     const Token temp = getNextToken();
     if (temp.type == Token::WHERE) {
-        ConditionNode *con = buildConditionTree();
+        ConditionNode *con = buildConditionTree(*tableMeta);
         RecordManager::DeleteRecords(*tableMeta, con);
     }
     else if (temp.type == Token::EOI) return;
     else throw error("where", temp.type);
 }
 
-ConditionNode *Interpreter::buildTerm() {
+ConditionNode *Interpreter::buildTerm(TableMeta &table) {
     Token temp = getNextToken();
 
     switch (temp.type) {
@@ -263,7 +263,10 @@ ConditionNode *Interpreter::buildTerm() {
             return new ConditionNode(ConditionNode::LP);
         }
         case Token::ID: {
-            return new ConditionNode(temp.String(), ConditionNode::ATTR);
+            Attr *attr = table.getAttrByName(temp.String());
+            if(attr->type == TableMeta::INT) return new ConditionNode(temp.String(), ConditionNode::ATTR_INT);
+            if(attr->type == TableMeta::FLOAT) return new ConditionNode(temp.String(), ConditionNode::ATTR_FLOAT);
+            if(attr->type == TableMeta::CHAR) return new ConditionNode(temp.String(), ConditionNode::ATTR_CHAR);
         }
         case Token::INTEGER: {
             return new ConditionNode(temp.Int());
@@ -286,16 +289,16 @@ ConditionNode *Interpreter::buildTerm() {
     }
 }
 
-ConditionNode *Interpreter::buildFactor() {
-    ConditionNode *left = buildTerm();
+ConditionNode *Interpreter::buildFactor(TableMeta &table) {
+    ConditionNode *left = buildTerm(table);
     ConditionNode *node;
     if (left->type == ConditionNode::NOT) {
         getNextToken(Token::LP);
         node = new ConditionNode(ConditionNode::NOT);
-        node->left = buildConditionTree();
+        node->left = buildConditionTree(table);
         return node;
     } else if (left->type == ConditionNode::LP) {
-        node = buildConditionTree();
+        node = buildConditionTree(table);
         return node;
     }
     const Token op = getNextToken();
@@ -320,15 +323,15 @@ ConditionNode *Interpreter::buildFactor() {
         default:
             throw error("= or > or < or >= or <= or !=", op.type);
     }
-    ConditionNode *right = buildTerm();
+    ConditionNode *right = buildTerm(table);
     if(!compareType(left->type, right->type)) throw error("condition type not match!");
     node->left = left;
     node->right = right;
     return node;
 }
 
-ConditionNode *Interpreter::buildConditionTree() {
-    ConditionNode *left = buildFactor();
+ConditionNode *Interpreter::buildConditionTree(TableMeta &table) {
+    ConditionNode *left = buildFactor(table);
     ConditionNode *node = NULL;
     Token op = getNextToken();
     while (1) {
@@ -345,7 +348,7 @@ ConditionNode *Interpreter::buildConditionTree() {
             default:
                 throw error("&& or ||", op.type);
         }
-        ConditionNode *right = buildFactor();
+        ConditionNode *right = buildFactor(table);
         node->left = left;
         node->right = right;
         left = node;
@@ -354,6 +357,15 @@ ConditionNode *Interpreter::buildConditionTree() {
 }
 
 bool Interpreter::compareType(ConditionNode::conType a, ConditionNode::conType b) {
+    ConditionNode::conType typeA, typeB;
+    if(a == ConditionNode::ATTR_INT) typeA = ConditionNode::INT;
+    if(a == ConditionNode::ATTR_FLOAT) typeA = ConditionNode::FLOAT;
+    if(a == ConditionNode::ATTR_CHAR) typeA = ConditionNode::CHAR;
+
+    if(b == ConditionNode::ATTR_INT) typeB = ConditionNode::INT;
+    if(b == ConditionNode::ATTR_FLOAT) typeB = ConditionNode::FLOAT;
+    if(b == ConditionNode::ATTR_CHAR) typeB = ConditionNode::CHAR;
+
     return (a == b) ||
             (a == ConditionNode::INT && b == ConditionNode::FLOAT) ||
             (a == ConditionNode::FLOAT && b == ConditionNode::INT);

@@ -28,7 +28,7 @@ void Interpreter::interpret() {
             case Token::ERROR:
                 break;
             case Token::TABLE:
-                creatTable();
+                createTable();
                 break;
             case Token::INDEX:
                 createIndex();
@@ -51,7 +51,7 @@ void Interpreter::interpret() {
     }
 }
 
-void Interpreter::creatTable() {
+void Interpreter::createTable() {
     //table name
     const Token tableName = getNextToken();
     if (tableName.type != Token::ID) {
@@ -117,6 +117,7 @@ void Interpreter::creatTable() {
         }
 
     }
+    TableMeta *table = catalogManager->findTableMetaFromId(tableId);
     cout << endl;
 }
 

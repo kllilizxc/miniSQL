@@ -14,7 +14,7 @@ private:
     Lexer *lexer;
     CatalogManager *catalogManager;
     inline const Token getNextToken(Token::Type type = Token::EMPTY);
-    void creatTable();
+    void createTable();
     void createIndex();
     void select();
     void insertInto();

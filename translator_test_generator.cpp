@@ -35,7 +35,7 @@ char* FloatToChar(float f) {
 char *StringToChar(string str, int size) {
 	char *tempc = new char[size];
 	memset(tempc, '\0', size);
-	for (int i = 0; i < str.length && i < size; ++i) {
+	for (int i = 0; i < str.size() && i < size; ++i) {
 		tempc[i] = str[i];
 	}
 	return tempc;

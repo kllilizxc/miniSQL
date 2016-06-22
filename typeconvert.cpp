@@ -1,3 +1,4 @@
+#include <cstring>
 #include "typeconvert.h"
 
 uint32_t CharToInt(char* ch) {

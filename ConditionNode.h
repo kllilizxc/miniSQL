@@ -15,7 +15,7 @@ private:
 public:
     enum conType {
         ATTR, INT, FLOAT, CHAR,
-        EQ, GT, GEQ, LT, LEQ,
+        EQ, NEQ, GT, GEQ, LT, LEQ,
         AND, OR, NOT,
         LP, RP
     };

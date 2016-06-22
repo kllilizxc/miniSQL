@@ -3,6 +3,7 @@
 #include "interpreter.h"
 #include "error.h"
 #include "table.h"
+#include "recordmanager.h"
 
 using namespace std;
 
@@ -118,6 +119,7 @@ void Interpreter::createTable() {
 
     }
     TableMeta *table = catalogManager->findTableMetaFromId(tableId);
+    RecordManager::CreateTable(*table);
     cout << endl;
 }
 
@@ -153,15 +155,15 @@ void Interpreter::select() {
     Token attrName;
     Token tableName;
 
-    vector<string> attrs;
-    vector<string> tables;
+    vector<string> attrNames;
+    vector<int> attrIndexes;
 
     bool hasCondition = false;
 
     //attributes
     while (1) {
         attrName = getNextToken(Token::ID);
-        attrs.push_back(attrName.String());
+        attrNames.push_back(attrName.String());
         Token temp = getNextToken();
         if (temp.type == Token::COMMA) continue;
         else if (temp.type == Token::FROM) break;
@@ -169,30 +171,25 @@ void Interpreter::select() {
     }
 
     //tables
-    while (1) {
-        tableName = getNextToken(Token::ID);
-        tables.push_back(tableName.String());
-        Token temp = getNextToken();
-        if (temp.type == Token::COMMA) continue;
-        else if (temp.type == Token::WHERE) {
-            hasCondition = true;
-            break;
-        }
-        else if (temp.type == Token::EOI) break;
-        else throw error(", or where", temp.type);
+    tableName = getNextToken(Token::ID);
+    Token temp = getNextToken();
+    if (temp.type == Token::WHERE) hasCondition = true;
+
+    int tableId = catalogManager->getTableIdFromName(tableName.String());
+    TableMeta *tableMeta = catalogManager->findTableMetaFromId(tableId);
+
+    for (int i = 0; i < attrNames.size(); ++i) {
+        attrIndexes.push_back(tableMeta->attrMap[attrNames[i]]);
     }
 
     //where
-    ConditionNode *con;
+    ConditionNode *con = NULL;
     if (hasCondition) {
         con = buildConditionTree();
     }
 
-    cout << "select ";
-    for (int i = 0; i < attrs.size(); ++i) cout << attrs[i] << " ";
-    cout << "from ";
-    for (int j = 0; j < tables.size(); ++j) cout << tables[j] << " ";
-    cout << endl;
+    RecordManager::GetRecords(*tableMeta, attrIndexes, con);
+
 }
 
 void Interpreter::insertInto() {
@@ -236,7 +233,7 @@ void Interpreter::insertInto() {
                 throw error("value or , or )", temp.type);
         }
     }
-    //TODO tableMeta and tableRow ready
+    RecordManager::InsertRecords(*tableMeta, &tableRow);
 
 }
 
@@ -251,7 +248,7 @@ void Interpreter::deleteFrom() {
     const Token temp = getNextToken();
     if (temp.type == Token::WHERE) {
         ConditionNode *con = buildConditionTree();
-        //TODO tableMeta and con ready
+        RecordManager::DeleteRecords(*tableMeta, con);
     }
     else if (temp.type == Token::EOI) return;
     else throw error("where", temp.type);
@@ -317,8 +314,10 @@ ConditionNode *Interpreter::buildFactor() {
         case Token::LET:
             node = new ConditionNode(ConditionNode::LEQ);
             break;
+        case Token::NEQ:
+            node = new ConditionNode(ConditionNode::NEQ);
         default:
-            throw error("= or > or < or >= or <=", op.type);
+            throw error("= or > or < or >= or <= or !=", op.type);
     }
     ConditionNode *right = buildTerm();
     node->left = left;

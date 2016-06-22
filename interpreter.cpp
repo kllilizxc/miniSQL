@@ -119,7 +119,7 @@ void Interpreter::createTable() {
 
     }
     TableMeta *table = catalogManager->findTableMetaFromId(tableId);
-    //RecordManager::CreateTable(*table);
+    RecordManager::CreateTable(*table);
     cout << endl;
 }
 

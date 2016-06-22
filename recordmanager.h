@@ -9,9 +9,13 @@
 #include "buffermanager.h"
 #include "ConditionNode.h"
 
-STATUS CreateTable(TableMeta tableMeta);
-int InsertRecords(TableMeta tableMeta, TableRow *tableRow);
-vector<TableRow*> GetRecords(TableMeta tableMeta, vector<int> attrIndex, ConditionNode *condition);
-int DeleteRecords(TableMeta tableMeta, ConditionNode *condition);
+class RecordManager {
+public:
+    STATUS CreateTable(TableMeta tableMeta);
+    int InsertRecords(TableMeta tableMeta, TableRow *tableRow);
+    vector<TableRow*> GetRecords(TableMeta tableMeta, vector<int> attrIndex, ConditionNode *condition);
+    int DeleteRecords(TableMeta tableMeta, ConditionNode *condition);
+};
+
 
 #endif //MINISQL_RECORDMANAGER_H

@@ -3,11 +3,11 @@
 #include <string>
 #include <vector>
 #include <cstring>
+#include "recordmanager.h"
 #include "buffermanager.h"
 #include "typeconvert.h"
 #include "conditionnode.h"
 #include "comparevalue.h"
-#include "recordmanager.h"
 
 const string DB_FILE_NAME = "test_db.dbi";
 const string DB_NAME = "test_db";
@@ -110,7 +110,7 @@ STATUS CreateTableFile(string fileName, string nextFileName, string prevFileName
 	}
 }
 
-STATUS CreateTable(TableMeta tableMeta) {
+STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 	//open file
 	streampos size;
 	char *memblock;
@@ -188,7 +188,7 @@ char *IncreaseLastNumbers(const char *str, int size) {
 	return c;
 }
 
-int InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
+int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
 	//open file
 	streampos size;
 	char *memblock;
@@ -345,7 +345,7 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 	}
 }
 
-vector<TableRow*> GetRecords(TableMeta tableMeta, vector<int> attrIndex, ConditionNode *condition) {
+vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> attrIndex, ConditionNode *condition) {
 	vector<TableRow*> Finale;
 	//这还不能直接push指针，还得复制内存woc(深拷贝)
 	//先不写index
@@ -387,7 +387,7 @@ vector<TableRow*> GetRecords(TableMeta tableMeta, vector<int> attrIndex, Conditi
 	return Finale;
 }
 
-int DeleteRecords(TableMeta tableMeta, ConditionNode *condition) {
+int RecordManager::DeleteRecords(TableMeta tableMeta, ConditionNode *condition) {
 	int DelRecords = 0;
 	//一样是复制的。。。
 	streampos size;

@@ -7,13 +7,11 @@
 #define BLOCK_SIZE_BYTE 4194304
 #define BLOCK_HEAD_OFFSET 72
 
-using namespace std;
-
 enum STATUS {
 	SUCCESS, ERROR, FULL, NOT_EXIST, EXIST
 };
 
-typedef map<string, BufferTable*> BufferMap;//这种释放策略坑
+typedef std::map<string, BufferTable*> BufferMap;//这种释放策略坑
 
 class BufferTable {
 public:
@@ -34,9 +32,9 @@ public:
 	uint32_t MaxRecCount;
 	uint32_t HeadRecOffset;//第几条
 	uint32_t RecLength;//算入了第一个条目是否为空的标识符
-	vector<Attr> attrs;
-	vector<uint32_t> InnerOffsets;
-	vector<TableRow*> Table;//表
+	std::vector<Attr> attrs;
+	std::vector<uint32_t> InnerOffsets;
+	std::vector<TableRow*> Table;//表
 	bool IsDirty;
 	int RefNum;
 	STATUS WriteBack();

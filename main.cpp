@@ -45,6 +45,15 @@ int main() {
             cin >> inputFile;
             ifstream in;
             in.open(inputFile);
+            char instructions[100];
+            char c;
+            while (in.peek() != EOF, !in.eof()) {
+                int i = 0;
+                while ((c = in.get()) != ';') instructions[i++] = c;
+                instructions[i] = '\0';
+                interpreter->reset(instructions);
+                interpreter->interpret();
+            }
             in.close();
         }
         else if (!strcmp(instr, "e")) break;

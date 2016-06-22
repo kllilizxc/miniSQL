@@ -61,7 +61,7 @@ void Interpreter::createTable() {
     if (catalogManager->getTableIdFromName(tableName.String()) != -1) throw error("table already exits!");
     int tableId = catalogManager->createTableMeta(tableName.String());
     // (
-    getNextToken(Token::LBP);
+    getNextToken(Token::LP);
     Token temp = getNextToken();
     Token attrName;
     int count = -1;
@@ -112,7 +112,7 @@ void Interpreter::createTable() {
             temp = getNextToken();
             continue;
         }
-        else if (endToken.type == Token::RBP) break;
+        else if (endToken.type == Token::RP) break;
         else {
             error(", or }", endToken.type);
             break;

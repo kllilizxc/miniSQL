@@ -40,7 +40,8 @@ void CatalogManager::addAttrToTableMeta(int tableId, string name, Token::Type ty
 }
 
 int CatalogManager::getTableIdFromName(string name) {
-    return tableMap.find(name)->second;
+    if(tableMap.find(name) != tableMap.end()) return tableMap.find(name)->second;
+    else return -1;
 }
 
 TableMeta *CatalogManager::findTableMetaFromId(int id) {

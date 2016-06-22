@@ -265,9 +265,10 @@ ConditionNode *Interpreter::buildTerm(TableMeta &table) {
         }
         case Token::ID: {
             Attr *attr = table.getAttrByName(temp.String());
-            if(attr->type == TableMeta::INT) return new ConditionNode(temp.String(), ConditionNode::ATTR_INT);
-            if(attr->type == TableMeta::FLOAT) return new ConditionNode(temp.String(), ConditionNode::ATTR_FLOAT);
-            if(attr->type == TableMeta::CHAR) return new ConditionNode(temp.String(), ConditionNode::ATTR_CHAR);
+            int index = table.attrMap[temp.String()];
+            if(attr->type == TableMeta::INT) return new ConditionNode(index, ConditionNode::ATTR_INT);
+            if(attr->type == TableMeta::FLOAT) return new ConditionNode(index, ConditionNode::ATTR_FLOAT);
+            if(attr->type == TableMeta::CHAR) return new ConditionNode(index, ConditionNode::ATTR_CHAR);
         }
         case Token::INTEGER: {
             return new ConditionNode(temp.Int());

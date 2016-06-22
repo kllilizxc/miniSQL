@@ -7,13 +7,10 @@
 #include "typeconvert.h"
 #include "conditionnode.h"
 #include "comparevalue.h"
+#include "recordmanager.h"
 
 const string DB_FILE_NAME = "test_db.dbi";
 const string DB_NAME = "test_db";
-
-TableRow* DeepCopyTableRow(TableRow* tableRow) {
-
-}
 
 char *ConstructTableFileHead(string nextFileName, string prevFileName, uint32_t recCount, uint32_t headRecOffset) {
 	char *memblock = new char[72];

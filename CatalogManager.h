@@ -16,7 +16,8 @@ private:
     const string fileName = "catalog.data";
     vector<TableMeta> tableMetas;
     map<string, int> tableMap;
-    static string readStringFromFile(ifstream &file);
+    static char *readStringFromFile(ifstream &file);
+    static void writeStringToFile(ostream &file, string str);
     void writeToFile();
     void readFromFile();
 public:

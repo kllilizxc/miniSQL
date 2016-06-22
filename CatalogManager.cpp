@@ -59,7 +59,7 @@ void CatalogManager::setTableAttrProperty(int tableId, string attrName, byte pro
 
 void CatalogManager::writeToFile() {
     ofstream file;
-    file.open(fileName);
+    file.open(fileName, ios::binary);
     if(!file.is_open()) throw error("can not open catalog file for write!");
 
     int tableSize = tableMetas.size();
@@ -67,13 +67,12 @@ void CatalogManager::writeToFile() {
     for (int i = 0; i < tableSize; ++i) {
         TableMeta &table = tableMetas[i];
         file.write((char *)(&table.id), sizeof(int));
-        file << getTableNameFromId(table.id).data();
+        writeStringToFile(file, getTableNameFromId(table.id));
         int attrSize = table.attrs.size();
         file.write((char *)(&attrSize), sizeof(int));
         for (int j = 0; j < attrSize; ++j) {
             Attr &attr = table.attrs[j];
-            file << table.findAttrNameByIndex(j).data();
-
+            writeStringToFile(file, table.findAttrNameByIndex(j));
             file.write((char *)(&attr.type), sizeof(int));
             file.write((char *)(&attr.charNum), sizeof(int));
             file.write((char *)(&attr.property), sizeof(byte));
@@ -92,7 +91,7 @@ string CatalogManager::getTableNameFromId(int id) {
 
 void CatalogManager::readFromFile() {
     ifstream file;
-    file.open(fileName);
+    file.open(fileName, ios::binary);
     if(!file.is_open()) return;
 
     int tableSize;
@@ -100,7 +99,7 @@ void CatalogManager::readFromFile() {
     file.read((char *)(&tableSize), sizeof(int));
     for (int i = 0; i < tableSize; ++i) {
         int tableId;
-        string tableName;
+        char *tableName;
         file.read((char *)(&tableId), sizeof(int));
         tableName = readStringFromFile(file);
         TableMeta table(tableId);
@@ -108,7 +107,7 @@ void CatalogManager::readFromFile() {
         int attrSize;
         file.read((char *)(&attrSize), sizeof(int));
         for (int j = 0; j < attrSize; ++j) {
-            string attrName;
+            char *attrName;
             int type, charNum;
             byte property;
             attrName = readStringFromFile(file);
@@ -133,17 +132,35 @@ CatalogManager::~CatalogManager() {
     writeToFile();
 }
 
-std::string CatalogManager::readStringFromFile(ifstream &file) {
+char *CatalogManager::readStringFromFile(ifstream &file) {
     char c;
     file >> c;
-    std::string finalStr;
+    vector<char> str;
     while (c != '\0') {
-        finalStr += c;
+        str.push_back(c);
         file >> c;
     }
 
+    char *finalStr = new char[str.size() + 1];
+
+    int j;
+    for (j = 0; j < str.size(); ++j) {
+        finalStr[j] = str[j];
+    }
+    finalStr[j] = '\0';
+
     return finalStr;
 }
+
+void CatalogManager::writeStringToFile(ostream &file, string str) {
+    for (int i = 0; i < str.size(); ++i) {
+        file.write(&str[i], sizeof(char));
+    }
+    char end = '\0';
+    file.write(&end, sizeof(char));
+}
+
+
 
 
 

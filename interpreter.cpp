@@ -264,7 +264,7 @@ void Interpreter::deleteFrom() {
 
     //conditions
     const Token temp = getNextToken();
-    ConditionNode *con;
+    ConditionNode *con = NULL;
     if (temp.type == Token::WHERE) {
         con = buildConditionTree(*tableMeta);
     }

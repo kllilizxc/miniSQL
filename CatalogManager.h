@@ -15,7 +15,7 @@ using namespace std;
 
 class CatalogManager {
 private:
-    const string fileName = "C:\\Users\\kllilizxc\\OneDrive\\Documents\\ClionProjects\\miniSQL\\catalog.data";
+    const string fileName = "catalog.data";
     vector<TableMeta> tableMetas;
     map<string, int> tableMap;
     void writeToFile();

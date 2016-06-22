@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <cstring>
@@ -19,6 +20,7 @@ char *ConstructTableFileHead(string nextFileName, string prevFileName, uint32_t 
 	memcpy(memblock + 32, StringToChar(prevFileName, 32), 32);
 	memcpy(memblock + 64, IntToChar(recCount), 4);
 	memcpy(memblock + 68, IntToChar(headRecOffset), 4);
+	return memblock;
 }
 
 struct DbInfoRec {
@@ -144,7 +146,7 @@ STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 		return EXIST;
 	}
 	TempDbInfoRec.id = tableMeta.id;
-	itoa(tableMeta.id, IdBuff, 16);
+	snprintf(IdBuff, sizeof(IdBuff), "%x", tableMeta.id);
 	TempDbInfoRec.HeadFileName = DB_NAME + string(".") + string(IdBuff) + string(".dbt.000");
 	Dbinfo.DbInfoRecs[tableMeta.id] = TempDbInfoRec;
 	Dbinfo.TableNum++;
@@ -152,7 +154,7 @@ STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 	CreateTableFile(TempDbInfoRec.HeadFileName, "", "", 0, 0);
 	//write back to db info
 	memblock = Dbinfo.ConvertToMemblock();
-	ofstream file(TempDbInfoRec.HeadFileName.data(), ios::out | ios::binary);
+	ofstream file(DB_FILE_NAME.data(), ios::out | ios::binary);
 	if (file.is_open())
 	{
 		file.write(memblock, sizeof(memblock));
@@ -225,7 +227,7 @@ int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
 			TableFileName = InsertableTable->NextFileName;
 			if (!strlen(TableFileName.data())) {//下一文件为空
 				char IdBuff[9];
-				itoa(tableMeta.id, IdBuff, 16);
+				snprintf(IdBuff, sizeof(IdBuff), "%x", tableMeta.id);
 				TempTableFileName = DB_NAME + string(".") + string(IdBuff) + string(".dbt.") + IncreaseLastNumbers(InsertableTable->NextFileName.data(), 3);
 				//这里要手动改脏数据不优雅
 				InsertableTable->NextFileName = TempTableFileName;
@@ -302,7 +304,7 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 			AType = ConditionNode::FLOAT;
 			break;
 		case ConditionNode::CHAR:
-			LeftS = condition->left->getStringValue();
+			LeftS = condition->left->getCharValue();
 			AType = ConditionNode::CHAR;
 			break;
 		default:
@@ -336,7 +338,7 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 			return CompareValue(LeftF, RightF, AType);
 			break;
 		case ConditionNode::CHAR:
-			RightS = condition->right->getStringValue();
+			RightS = condition->right->getCharValue();
 			return CompareValue(LeftS, RightS, AType);
 			break;
 		default:

@@ -24,6 +24,8 @@ string TableMeta::findAttrNameByIndex(int index) {
     throw error("can't find attribute of index " + id);
 }
 
+TableMeta::TableMeta(const TableMeta &tableMeta) : attrMap(tableMeta.attrMap), id(tableMeta.id), attrs(tableMeta.attrs) { }
+
 
 Attr::Attr(TableMeta::ATTRTYPE type, byte property, int charNum) : type(type), property(property), charNum(charNum) { }
 

@@ -9,10 +9,9 @@ enum STATUS {
 	SUCCESS, ERROR, FULL, NOT_EXIST, EXIST
 };
 
-typedef std::map<string, BufferTable*> BufferMap;//这种释放策略坑
-
 class BufferTable {
 public:
+	typedef std::map<string, BufferTable*> BufferMap;//这种释放策略坑
 	BufferTable(string fileName, TableMeta tableMeta);
 
 	void Release();

@@ -24,9 +24,11 @@ public:
     int id;
     vector<Attr> attrs;
 
-    string findAttrNameByIndex(int index);
-
     TableMeta(int tableId);
+
+    TableMeta(const TableMeta &tableMeta);
+
+    string findAttrNameByIndex(int index);
 
     void addAttr(string name, ATTRTYPE type, byte property, int charNum = 0);
 

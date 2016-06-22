@@ -13,6 +13,8 @@
 
 using namespace std;
 
+BufferTable::BufferMap BufferTable::BuffList;
+
 BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 	IsDirty = false;
 	RefNum = 0;

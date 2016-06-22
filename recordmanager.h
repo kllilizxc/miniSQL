@@ -6,6 +6,8 @@
 #define MINISQL_RECORDMANAGER_H
 
 #include "TableMeta.h"
+#include "buffermanager.h"
+#include "ConditionNode.h"
 
 STATUS CreateTable(TableMeta tableMeta);
 int InsertRecords(TableMeta tableMeta, TableRow *tableRow);

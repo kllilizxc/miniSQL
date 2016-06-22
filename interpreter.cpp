@@ -189,7 +189,8 @@ void Interpreter::select() {
         con = buildConditionTree();
     }
 
-    RecordManager::GetRecords(*tableMeta, attrIndexes, con);
+    vector<TableRow *> rows;
+    rows = RecordManager::GetRecords(*tableMeta, attrIndexes, con);
 
 }
 

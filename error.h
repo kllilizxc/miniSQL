@@ -10,8 +10,8 @@
 class error {
 public:
     error(const char *expt, const char *get);
-    error(const char *expt, const TokenType get);
-    error(const TokenType expt, const TokenType get);
+    error(const char *expt, const Token::Type get);
+    error(const Token::Type expt, const Token::Type get);
     error(const char *msg);
 };
 

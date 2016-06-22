@@ -11,11 +11,11 @@ error::error(const char *expt, const char *get) {
     cout << endl << "ERROR! Expect " << expt << ", get " << get << " instead." << endl;
 }
 
-error::error(const char *expt, const TokenType get) {
+error::error(const char *expt, const Token::Type get) {
     cout << endl << "ERROR! Expect " << expt << ", get Token type " << get << " instead." << endl;
 }
 
-error::error(const TokenType expt, const TokenType get) {
+error::error(const Token::Type expt, const Token::Type get) {
     cout << endl << "ERROR! Expect Token type " << expt << ", get Token type " << get << " instead." << endl;
 }
 

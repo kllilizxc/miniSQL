@@ -3,14 +3,12 @@
 //
 
 #include "Lexer.h"
-#include <cctype>
 #include <iostream>
 #include <cstdlib>
 #include "error.h"
 
 using namespace std;
 
-#define arrayLen(x) (sizeof(x) / sizeof(*x))
 
 Lexer::Lexer(const char *instr) : index(0) {
     if (instr) {
@@ -37,52 +35,52 @@ void Lexer::skipWhiteSpace() {
     }
 }
 
-const Token *Lexer::getNextToken() {
+const Token Lexer::getNextToken() {
     try {
         //跳过whitespace
         skipWhiteSpace();
-        if (crtChar == END) return new Token(EOI);
+        if (crtChar == END) return Token(Token::EOI);
 
         //数字
         if (isdigit(crtChar)) {
             bool isFloat;
             double num = getNumber(&isFloat);
-            if(isFloat) return dynamic_cast<const Token *>(new FloatToken(NUMBER, num));
-            else return dynamic_cast<const Token *>(new IntToken(NUMBER, (int)num));
+            if(isFloat) return Token(num);
+            else return Token(static_cast<int>(num));
         }
 
         //keyword 或 变量 等
         if (isalpha(crtChar)) {
             char *keyword1 = getKeyword();
-            for (int i = 0; i < arrayLen(skk); ++i) {
-                if (!strcmp(keyword1, skk[i].key)) {
-                    return new Token(skk[i].type);
+            for (int i = 0; i < Token::SINGLE_KEY_KEYWORDS_NUM; ++i) {
+                if (!strcmp(keyword1, Token::skk[i].key)) {
+                    return Token(Token::skk[i].type);
                 }
             }
             char *keyword2 = peekKeyword();
-            for (int j = 0; j < arrayLen(dkk); ++j) {
-                if (!strcmp(keyword1, dkk[j].firstKey) && !strcmp(keyword2, dkk[j].secondKey)) {
+            for (int j = 0; j < Token::DOUBLE_KEY_KEYWORDS_NUM; ++j) {
+                if (!strcmp(keyword1, Token::dkk[j].firstKey) && !strcmp(keyword2, Token::dkk[j].secondKey)) {
                     getKeyword();
-                    return new Token(dkk[j].type);
+                    return Token(Token::dkk[j].type);
                 }
             }
 
-            return dynamic_cast<const Token *>(new StringToken(ID, keyword1));
+            return Token(keyword1, Token::ID);
         }
 
         //标点符号
         char *symbols = peekCombinedSymbol();
-        for (int k = 0; k < arrayLen(csmb); ++k) {
-            if (!strcmp(symbols, csmb[k].symbol)) {
+        for (int k = 0; k < Token::COMBINED_SYMBOLS_NUM; ++k) {
+            if (!strcmp(symbols, Token::csmb[k].symbol)) {
                 getCombinedSymbol();
-                return new Token(csmb[k].type);
+                return Token(Token::csmb[k].type);
             }
         }
+
         char symbol = getSymbol();
-        for (int l = 0; l < arrayLen(smb); ++l) {
-            if (symbol == smb[l].symbol) {
-                Token *token = new Token(smb[l].type);
-                return token;
+        for (int l = 0; l < Token::SYMBOLS_NUM; ++l) {
+            if (symbol == Token::smb[l].symbol) {
+                return Token(Token::smb[l].type);
             }
         }
 
@@ -90,13 +88,13 @@ const Token *Lexer::getNextToken() {
         if (symbol == '.') {
             char *keyword = getKeyword();
             if (!isalpha(keyword[0])) throw error("an alpha", keyword);
-            return dynamic_cast<const Token *>(new StringToken(ATTR, keyword));
+            return Token(keyword, Token::ATTR);
         }
 
         throw error("a symbol", symbols);
     } catch (error &e) {
         cout << endl << "Exit because of prevous errors." << endl;
-        return new Token(ERROR);
+        return Token(Token::ERROR);
     }
 }
 

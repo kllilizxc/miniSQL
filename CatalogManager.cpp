@@ -14,23 +14,23 @@ int CatalogManager::createTableMeta(string name) {
     return id;
 }
 
-void CatalogManager::addAttrToTableMeta(int tableId, string name, TokenType type, int charNum) {
+void CatalogManager::addAttrToTableMeta(int tableId, string name, Token::Type type, int charNum) {
     if(tableId >= tableMetas.size()) throw error("No such id in tableMetas!");
     TableMeta *tableMeta = findTableMetaFromId(tableId);
     TableMeta::ATTRTYPE attrtype;
 
     switch (type) {
-        case INT:
+        case Token::INT:
             attrtype = TableMeta::INT;
             break;
-        case FLOAT:
-            attrtype = TableMeta::FLOAT;
+        case Token::DOUBLE:
+            attrtype = TableMeta::DOUBLE;
             break;
-        case CHAR:
+        case Token::CHAR:
             attrtype = TableMeta::CHAR;
             break;
         default:
-            throw error("INT or FLOAT or CHAR", type);
+            throw error("INT or DOUBLE or CHAR", type);
     }
 
     tableMeta->addAttr(name, attrtype, 0, charNum);
@@ -56,20 +56,20 @@ void CatalogManager::setTableAttrProperty(int tableId, string attrName, byte pro
 
 void CatalogManager::writeToFile() {
     ofstream file;
-    file.open(fileName, ios::out);
+    file.open(fileName);
     if(!file.is_open()) throw error("can not open catalog file for write!");
 
     int tableSize = tableMetas.size();
-    file << tableSize << " ";
+    file << tableSize;
     for (int i = 0; i < tableSize; ++i) {
         TableMeta &table = tableMetas[i];
-        file << table.id << " " << getTableNameFromId(i) << " ";
+        file << " " << table.id << " " << getTableNameFromId(table.id);
         int attrSize = table.attrs.size();
-        file << attrSize << " ";
+        file << " " << attrSize;
         for (int j = 0; j < attrSize; ++j) {
             Attr &attr = table.attrs[j];
-            file << table.findAttrNameByIndex(j) << " ";
-            file << attr.type << " " << attr.charNum << " " << attr.property << " ";
+            file << " " << table.findAttrNameByIndex(j);
+            file << " " << attr.type  << " " << attr.charNum << " " << static_cast<int>(attr.property);
         }
     }
 

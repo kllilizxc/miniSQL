@@ -5,18 +5,20 @@
       <sourceFolder url="file://$MODULE_DIR$/TableMeta.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/interpreter.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CatalogManager.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/CatalogManager.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Lexer.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/error.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/error.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CatalogManager.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ConditionNode.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/token.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/error.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/interpreter.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/token.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/token.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/table.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Lexer.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/error.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ConditionNode.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/table.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/TableMeta.cpp" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />

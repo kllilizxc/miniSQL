@@ -2,6 +2,7 @@
 #include <vector>
 #include "interpreter.h"
 #include "error.h"
+#include "table.h"
 
 using namespace std;
 
@@ -22,39 +23,25 @@ void Interpreter::interpret() {
         //select attr from id where ...
         //insertInto into id values (.., ..)
         //delete attr from id where ...
-        const Token *token = lexer->getNextToken();
-        switch (token->type) {
-            case ERROR:
+        const Token token = lexer->getNextToken();
+        switch (token.type) {
+            case Token::ERROR:
                 break;
-            case TABLE:
+            case Token::TABLE:
                 creatTable();
                 break;
-            case INDEX:
+            case Token::INDEX:
                 createIndex();
                 break;
-            case SELECT:
+            case Token::SELECT:
                 select();
                 break;
-            case INSERT:
+            case Token::INSERT:
                 insertInto();
                 break;
-            case DELETE:
+            case Token::DELETE:
                 deleteFrom();
                 break;
-            case NUMBER: {
-                const IntToken *intToken = dynamic_cast<const IntToken *>(token);
-                if (intToken) cout << intToken->value;
-                const FloatToken *floatToken = dynamic_cast<const FloatToken *>(token);
-                if (floatToken) cout << floatToken->value;
-                break;
-            }
-            case SQ: {
-                const StringToken *stringToken = dynamic_cast<const StringToken *>(token);
-                if (stringToken) cout << "'" << stringToken->value << "'";
-                else throw error("an Id", token->type);
-                expectNextToken(SQ);
-                break;
-            }
             default:
                 break;
         }
@@ -64,86 +51,68 @@ void Interpreter::interpret() {
     }
 }
 
-bool Interpreter::expectNextToken(TokenType getType) {
-    TokenType exptType = lexer->getNextToken()->type;
-    if (getType == exptType) return true;
-    else {
-        throw error(exptType, getType);
-    }
-}
-
-const StringToken *Interpreter::getNextStringToken() {
-    return dynamic_cast<const StringToken *>(lexer->getNextToken());
-}
-
-const IntToken *Interpreter::getNextNumToken() {
-    return dynamic_cast<const IntToken *>(lexer->getNextToken());
-}
-
 void Interpreter::creatTable() {
     //table name
-    const StringToken *tableName = getNextStringToken();
-    if (!tableName || (tableName->type != ID)) {
+    const Token tableName = getNextToken();
+    if (tableName.type != Token::ID) {
         throw error("tableName", "not a valid variable name");
     }
-    int tableId = catalogManager->createTableMeta(tableName->value);
+    int tableId = catalogManager->createTableMeta(tableName.String());
     // (
-    expectNextToken(LBP);
-    const StringToken *attrName = NULL;
-    const Token *attrType = NULL;
-    const Token *endToken = NULL;
+    getNextToken(Token::LBP);
+    Token temp = getNextToken();
+    Token attrName;
     int count = -1;
     while (1) {
         count++;
-        const Token *temp = getNextToken();
-        if (temp->type == ID) {
+        if (temp.type == Token::ID) {
             //attributes
-            attrName = dynamic_cast<const StringToken *>(temp);
+            attrName = temp;
             if (count > 32) throw error("Too many attributes! Less than 32 expected!");
-            attrType = getNextToken();
-            switch (attrType->type) {
-                case INT:
-                case FLOAT:
-                    catalogManager->addAttrToTableMeta(tableId, attrName->value, attrType->type);
+            const Token attrType = getNextToken();
+            switch (attrType.type) {
+                case Token::INT:
+                case Token::DOUBLE:
+                    catalogManager->addAttrToTableMeta(tableId, attrName.String(), attrType.type);
                     break;
-                case CHAR: {
-                    expectNextToken(LP);
-                    int charNum = getNextNumToken()->value;
-                    expectNextToken(RP);
-                    catalogManager->addAttrToTableMeta(tableId, attrName->value, attrType->type, charNum);
+                case Token::CHAR: {
+                    getNextToken(Token::LP);
+                    int charNum = getNextToken().Int();
+                    getNextToken(Token::RP);
+                    catalogManager->addAttrToTableMeta(tableId, attrName.String(), attrType.type, charNum);
                     break;
                 }
                 default:
-                    throw error("int or float or char", attrType->type);
+                    throw error("int or float or char", attrType.type);
             }
-        } else if (temp->type == PRIMARY) {
+        } else if (temp.type == Token::PRIMARY) {
             //primary key
-            expectNextToken(LP);
-            temp = getNextToken();
-            while (temp->type != RP) {
-                const StringToken *primaryKey = dynamic_cast<const StringToken *>(temp);
-                catalogManager->setTableAttrProperty(tableId, primaryKey->value, PRIMARY);
+            getNextToken(Token::LP);
+            Token primaryKey = getNextToken(Token::ID);
+            do {
+                catalogManager->setTableAttrProperty(tableId, primaryKey.String(), Token::PRIMARY);
                 temp = getNextToken();
-                if (temp->type == COMMA) {
-                    temp = getNextToken();
+                if (temp.type == Token::COMMA) {
+                    primaryKey = getNextToken(Token::ID);
                 }
-            }
+            } while (temp.type != Token::RP);
         } else {
-            throw error("attribute or primary", temp->type);
+            throw error("attribute or primary", temp.type);
         }
 
-        endToken = getNextToken();
-        if (endToken->type == UNIQUE) {
+        Token endToken = getNextToken();
+        if (endToken.type == Token::UNIQUE) {
             //unique
-            catalogManager->setTableAttrProperty(tableId, attrName->value, UNIQUE);
+            catalogManager->setTableAttrProperty(tableId, attrName.String(), Token::UNIQUE);
             endToken = getNextToken();
         }
-        if (endToken->type == COMMA) {
+        if (endToken.type == Token::COMMA) {
+            temp = getNextToken();
             continue;
         }
-        else if (endToken->type == RBP) break;
+        else if (endToken.type == Token::RBP) break;
         else {
-            error(", or }", endToken->type);
+            error(", or }", endToken.type);
             break;
         }
 
@@ -152,30 +121,31 @@ void Interpreter::creatTable() {
 }
 
 void Interpreter::createIndex() {
-    const StringToken *indexName = getNextStringToken();
-    expectNextToken(ON);
-    const StringToken *tableName = getNextStringToken();
-    expectNextToken(LP);
-    const Token *temp;
+    const Token indexName = getNextToken(Token::ID);
+    getNextToken(Token::ON);
+    const Token tableName = getNextToken(Token::ID);
+    getNextToken(Token::LP);
+    Token temp;
     vector<string> columns;
     while (1) {
         temp = getNextToken();
-        if (temp->type == ID) {
-            const StringToken *temp2 = dynamic_cast<const StringToken *>(temp);
-            columns.push_back(temp2->value);
+        if (temp.type == Token::ID) {
+            columns.push_back(temp.String());
         }
-        else if (temp->type == RP) break;
-        else if (temp->type == COMMA) continue;
-        else throw error("column or )", temp->type);
+        else if (temp.type == Token::RP) break;
+        else if (temp.type == Token::COMMA) continue;
+        else throw error("column or )", temp.type);
     }
 
-    cout << "create index " << indexName->value << " on " << tableName->value << " on columns: ";
+    cout << "create index " << indexName.String() << " on " << tableName.String() << " on columns: ";
     for (int i = 0; i < columns.size(); ++i) cout << columns[i] << " ";
     cout << endl;
 }
 
-const Token *Interpreter::getNextToken() {
-    return lexer->getNextToken();
+const Token Interpreter::getNextToken(Token::Type type) {
+    Token result = lexer->getNextToken();
+    if(type != Token::EMPTY && type != result.type) throw error(type, result.type);
+    return result;
 }
 
 bool Interpreter::elementInVector(vector<string> &v, string &e) {
@@ -186,8 +156,8 @@ bool Interpreter::elementInVector(vector<string> &v, string &e) {
 }
 
 void Interpreter::select() {
-    const StringToken *attrName = NULL;
-    const StringToken *tableName = NULL;
+    Token attrName;
+    Token tableName;
 
     vector<string> attrs;
     vector<string> tables;
@@ -196,26 +166,26 @@ void Interpreter::select() {
 
     //attributes
     while (1) {
-        attrName = getNextStringToken();
-        attrs.push_back(attrName->value);
-        const Token *temp = getNextToken();
-        if (temp->type == COMMA) continue;
-        else if (temp->type == FROM) break;
-        else throw error(", or from", temp->type);
+        attrName = getNextToken(Token::ID);
+        attrs.push_back(attrName.String());
+        Token temp = getNextToken();
+        if (temp.type == Token::COMMA) continue;
+        else if (temp.type == Token::FROM) break;
+        else throw error(", or from", temp.type);
     }
 
     //tables
     while (1) {
-        tableName = getNextStringToken();
-        tables.push_back(tableName->value);
-        const Token *temp = getNextToken();
-        if (temp->type == COMMA) continue;
-        else if (temp->type == WHERE) {
+        tableName = getNextToken(Token::ID);
+        tables.push_back(tableName.String());
+        Token temp = getNextToken();
+        if (temp.type == Token::COMMA) continue;
+        else if (temp.type == Token::WHERE) {
             hasCondition = true;
             break;
         }
-        else if (temp->type == EOI) break;
-        else throw error(", or where", temp->type);
+        else if (temp.type == Token::EOI) break;
+        else throw error(", or where", temp.type);
     }
 
     //where
@@ -233,90 +203,103 @@ void Interpreter::select() {
 
 void Interpreter::insertInto() {
     //table name
-    const StringToken *tableName = getNextStringToken();
-    expectNextToken(VALUES);
-    expectNextToken(LP);
-    const Token *temp;
+    const Token tableName = getNextToken(Token::ID);
+    getNextToken(Token::VALUES);
+    getNextToken(Token::LP);
+    TableMeta *tableMeta = catalogManager->findTableMetaFromId(catalogManager->getTableIdFromName(tableName.String()));
+    TableRow tableRow;
+    Token temp;
     bool exit = false;
-    cout << "insertInto into " << tableName->value << " with values: ";
+    cout << "insertInto into " << tableName.String() << " with values: ";
     //values
     while (!exit) {
         temp = getNextToken();
-        switch (temp->type) {
-            case NUMBER: {
-                const IntToken *temp2 = dynamic_cast<const IntToken *>(temp);
-                if (temp2) cout << temp2->value;
-                const FloatToken *temp3 = dynamic_cast<const FloatToken *>(temp);
-                if (temp3) cout << temp3->value;
+        switch (temp.type) {
+            case Token::INT:
+                cout << temp.Int();
+                tableRow.append(new TableCell(temp.Int()));
+                break;
+            case Token::DOUBLE:
+                cout << temp.Double();
+                tableRow.append(new TableCell(temp.Double()));
+                break;
+            case Token::SQ: {
+                const Token temp2 = getNextToken();
+                cout << "'" << temp2.String() << "'";
+                getNextToken(Token::SQ);
+                const char *data = temp2.String().data();
+                tableRow.append(new TableCell(data, strlen(data) + 1));
                 break;
             }
-            case SQ: {
-                const StringToken *temp2 = getNextStringToken();
-                cout << temp2->value;
-                expectNextToken(SQ);
-                break;
-            }
-            case COMMA:
+            case Token::COMMA:
                 cout << ", ";
                 continue;
-            case RP:
+            case Token::RP:
                 cout << endl;
                 exit = true;
                 break;
             default:
-                throw error("value or , or )", temp->type);
+                throw error("value or , or )", temp.type);
         }
     }
+    //TODO tableMeta and tableRow ready
 
 }
 
 void Interpreter::deleteFrom() {
     //table name
-    const StringToken *tableName = getNextStringToken();
+    const Token tableName = getNextToken(Token::ID);
+    TableMeta *tableMeta = catalogManager->findTableMetaFromId(catalogManager->getTableIdFromName(tableName.String()));
 
-    cout << "delete from " << tableName->value << endl;
+    cout << "delete from " << tableName.String() << endl;
 
     //conditions
-    const Token *temp = getNextToken();
-    if (temp->type == WHERE) {
-        //TODO
+    const Token temp = getNextToken();
+    if (temp.type == Token::WHERE) {
+        ConditionNode *con = buildConditionTree();
+        //TODO tableMeta and con ready
     }
-    else if (temp->type == EOI) return;
-    else throw error("where", temp->type);
+    else if (temp.type == Token::EOI) return;
+    else throw error("where", temp.type);
 }
 
 ConditionNode *Interpreter::buildTerm() {
-    const Token *temp = getNextToken();
+    const Token temp = getNextToken();
 
-    if(temp->type == LP) {
-        return buildConditionTree();
-        expectNextToken(RP);
-    } else if(temp->type == ID) {
-        const StringToken *id = dynamic_cast<const StringToken *>(temp);
-        return new ConditionNode(id->value, ConditionNode::ATTR);
-    } else if(temp->type == NUMBER) {
-        const FloatToken *floatToken = dynamic_cast<const FloatToken *>(temp);
-        if(floatToken) return new ConditionNode(floatToken->value);
-        const IntToken *intValue = dynamic_cast<const IntToken *>(temp);
-        if(intValue) return new ConditionNode(intValue->value);
-        throw error("int or float", temp->type);
-    } else if(temp->type == CHAR) {
-        const StringToken *charValue = dynamic_cast<const StringToken *>(temp);
-        return new ConditionNode(charValue->value);
-    } else throw error("( or attr or number or char", temp->type);
+    switch(temp.type) {
+        case Token::LP: {
+            ConditionNode *node = buildConditionTree();
+            getNextToken(Token::RP);
+            return node;
+        }
+        case Token::ID: {
+            return new ConditionNode(temp.String(), ConditionNode::ATTR);
+        }
+        case Token::INT: {
+            return new ConditionNode(temp.Int());
+        }
+        case Token::DOUBLE: {
+            return new ConditionNode(temp.Double());
+        }
+        case Token::CHAR: {
+            return new ConditionNode(temp.String());
+        }
+        default: throw error("( or attr or number or char", temp.type);
+
+    }
 }
 
 ConditionNode *Interpreter::buildFactor() {
     ConditionNode *left = buildTerm();
-    const Token *op = getNextToken();
+    const Token op = getNextToken();
     ConditionNode *node;
-    switch (op->type) {
-        case EQ: node = new ConditionNode(ConditionNode::EQ); break;
-        case BT: node = new ConditionNode(ConditionNode::GT); break;
-        case LT: node = new ConditionNode(ConditionNode::LT); break;
-        case BET: node = new ConditionNode(ConditionNode::GEQ); break;
-        case LET: node = new ConditionNode(ConditionNode::LEQ); break;
-        default: throw error("= or > or < or >= or <=", op->type);
+    switch (op.type) {
+        case Token::EQ: node = new ConditionNode(ConditionNode::EQ); break;
+        case Token::BT: node = new ConditionNode(ConditionNode::GT); break;
+        case Token::LT: node = new ConditionNode(ConditionNode::LT); break;
+        case Token::BET: node = new ConditionNode(ConditionNode::GEQ); break;
+        case Token::LET: node = new ConditionNode(ConditionNode::LEQ); break;
+        default: throw error("= or > or < or >= or <=", op.type);
     }
     ConditionNode *right = buildTerm();
     node->left = left;
@@ -326,19 +309,18 @@ ConditionNode *Interpreter::buildFactor() {
 
 ConditionNode *Interpreter::buildConditionTree() {
     ConditionNode *left = buildFactor();
-    const Token *op = getNextToken();
+    const Token op = getNextToken();
     ConditionNode *node;
-    switch (op->type) {
-        case AND: node = new ConditionNode(ConditionNode::AND); break;
-        case OR: node = new ConditionNode(ConditionNode::OR); break;
-        default: throw error("&& or ||", op->type);
+    switch (op.type) {
+        case Token::AND: node = new ConditionNode(ConditionNode::AND); break;
+        case Token::OR: node = new ConditionNode(ConditionNode::OR); break;
+        default: throw error("&& or ||", op.type);
     }
     ConditionNode *right = buildFactor();
     node->left = left;
     node->right = right;
     return node;
 }
-
 
 
 

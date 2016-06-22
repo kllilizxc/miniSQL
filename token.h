@@ -6,111 +6,79 @@
 #define MINISQL_TOKEN_H
 
 #include <cstring>
+#include <string>
 
-typedef enum {
-    EMPTY, ID, ATTR, //变量 0
-    TABLE, NUMBER, INDEX, SELECT, DELETE, INSERT, FROM, WHERE, VALUES, ON, //命令关键词 3
-    LP, RP, LBP, RBP, COMMA, SEMI, SQ, //标点符号 13
-    EQ, NEQ, BT, LT, BET, LET, //比较符号 20
-    AND, OR, //逻辑符号 26
-    PRIMARY, UNIQUE, //表属性 28
-    INT, FLOAT, CHAR, //数据类型 30
-    EOI, ERROR //其他 33
-} TokenType;
+using namespace std;
 
-static struct singleKeyKeywords {
-    TokenType type;
-    const char *key;
-} skk[] = {
-        {SELECT, "select"},
-        {UNIQUE, "unique"},
-        {FROM,   "from"},
-        {WHERE,  "where"},
-        {INT,    "int"},
-        {FLOAT,  "float"},
-        {CHAR,   "char"},
-        {VALUES, "values"},
-        {ON,     "on"}
-};
-
-static struct doubleKeyKeywords {
-    TokenType type;
-    const char *firstKey;
-    const char *secondKey;
-} dkk[] = {
-        {TABLE,   "create",     "table"},
-        {INDEX,   "create",     "index"},
-        {INSERT,  "insertInto", "into"},
-        {DELETE,  "delete",     "from"},
-        {PRIMARY, "primary",    "key"}
-};
-
-static struct symbols {
-    TokenType type;
-    const char symbol;
-} smb[] = {
-        {LP,    '('},
-        {RP,    ')'},
-        {LBP,   '{'},
-        {RBP,   '}'},
-        {COMMA, ','},
-        {SEMI,  ';'},
-        {EQ,    '='},
-        {BT,    '>'},
-        {LT,    '<'},
-        {SQ,    '\''}
-};
-
-static struct combinedSymbols {
-    TokenType type;
-    const char *symbol;
-} csmb[] = {
-        {AND, "&&"},
-        {OR,  "||"},
-        {NEQ, "!="},
-        {BET, ">="},
-        {LET, "<="}
-};
+struct singleKeyKeywords;
+struct doubleKeyKeywords;
+struct symbols;
+struct combinedSymbols;
 
 class Token {
+private:
+    void *value;
 public:
-    TokenType type;
+    static const int SINGLE_KEY_KEYWORDS_NUM = 9;
+    static const int DOUBLE_KEY_KEYWORDS_NUM = 5;
+    static const int SYMBOLS_NUM = 10;
+    static const int COMBINED_SYMBOLS_NUM = 5;
 
-    Token(TokenType type = EMPTY);
+    enum Type {
+        EMPTY, ID, ATTR, //变量 0
+        TABLE, INDEX, SELECT, DELETE, INSERT, FROM, WHERE, VALUES, ON, //命令关键词 3
+        LP, RP, LBP, RBP, COMMA, SEMI, SQ, //标点符号 12
+        EQ, NEQ, BT, LT, BET, LET, //比较符号 19
+        AND, OR, //逻辑符号 25
+        PRIMARY,UNIQUE, //表属性 27
+        INT, DOUBLE, CHAR, //数据类型 29
+        EOI, ERROR //其他 32
+    };
 
-    virtual const Token &operator=(const Token &another);
+    static singleKeyKeywords skk[];
 
-    virtual ~Token();
+    static doubleKeyKeywords dkk[];
+
+    static symbols smb[];
+
+    static combinedSymbols csmb[];
+
+    Type type;
+
+    Token(Type type = EMPTY);
+
+    Token(int value);
+
+    Token(double value);
+
+    Token(string value, Type type = Token::CHAR);
+
+    int Int() const;
+
+    double Double() const;
+
+    string String() const;
 };
 
-class IntToken : public Token {
-public:
-    int value;
-
-    IntToken(TokenType type = EMPTY, int value = 0);
-
-    const Token &operator=(const Token &another);
+struct singleKeyKeywords {
+    Token::Type type;
+    const char *key;
 };
 
-class FloatToken : public Token {
-public:
-    double value;
-
-    FloatToken(TokenType type = EMPTY, double value = 0);
-
-    const Token &operator=(const Token &another);
+struct doubleKeyKeywords {
+    Token::Type type;
+    const char *firstKey;
+    const char *secondKey;
 };
 
-class StringToken : public Token {
-public:
-    char *value;
-
-    StringToken(TokenType type = EMPTY, char *value = NULL);
-
-    const Token &operator=(const Token &another);
-
-    ~StringToken();
+struct symbols {
+    Token::Type type;
+    const char symbol;
 };
 
+struct combinedSymbols {
+    Token::Type type;
+    const char *symbol;
+};
 
 #endif //MINISQL_TOKEN_H

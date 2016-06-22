@@ -18,16 +18,16 @@ private:
     const string fileName = "C:\\Users\\kllilizxc\\OneDrive\\Documents\\ClionProjects\\miniSQL\\catalog.data";
     vector<TableMeta> tableMetas;
     map<string, int> tableMap;
-    int getTableIdFromName(string name);
-    string getTableNameFromId(int id);
-    TableMeta *findTableMetaFromId(int id);
     void writeToFile();
     void readFromFile();
 public:
     CatalogManager();
     ~CatalogManager();
+    TableMeta *findTableMetaFromId(int id);
+    string getTableNameFromId(int id);
+    int getTableIdFromName(string name);
     int createTableMeta(string name);
-    void addAttrToTableMeta(int tableId, string name, TokenType type, int charNum = 0);
+    void addAttrToTableMeta(int tableId, string name, Token::Type type, int charNum = 0);
     void setTableAttrProperty(int tableId, string attrName, byte property);
 };
 

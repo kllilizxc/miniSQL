@@ -13,10 +13,7 @@ private:
     char *instr;
     Lexer *lexer;
     CatalogManager *catalogManager;
-    bool expectNextToken(TokenType getType);
-    inline const Token* getNextToken();
-    inline const StringToken * getNextStringToken();
-    inline const IntToken * getNextNumToken();
+    inline const Token getNextToken(Token::Type type = Token::EMPTY);
     static bool elementInVector(vector<string> &v, string &e);
     void creatTable();
     void createIndex();

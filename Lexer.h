@@ -26,7 +26,7 @@ private:
     void advance();
 public:
     Lexer(const char *instr = 0);
-    const Token *getNextToken();
+    const Token getNextToken();
 
 };
 

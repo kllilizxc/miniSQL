@@ -4,50 +4,71 @@
 
 #include "token.h"
 
-Token::Token(TokenType type) : type(type) { }
+struct singleKeyKeywords Token::skk[] = {
+        {Token::SELECT, "select"},
+        {Token::UNIQUE, "unique"},
+        {Token::FROM,   "from"},
+        {Token::WHERE,  "where"},
+        {Token::INT,    "int"},
+        {Token::DOUBLE, "float"},
+        {Token::CHAR,   "char"},
+        {Token::VALUES, "values"},
+        {Token::ON,     "on"}
+};
 
-Token::~Token() { }
+doubleKeyKeywords Token::dkk[] = {
+        {Token::TABLE,   "create",     "table"},
+        {Token::INDEX,   "create",     "index"},
+        {Token::INSERT,  "insert", "into"},
+        {Token::DELETE,  "delete",     "from"},
+        {Token::PRIMARY, "primary",    "key"}
+};
 
-const Token &Token::operator=(const Token &another) {
-    this->type = another.type;
-    return *this;
+symbols Token::smb[] = {
+        {Token::LP,    '('},
+        {Token::RP,    ')'},
+        {Token::LBP,   '{'},
+        {Token::RBP,   '}'},
+        {Token::COMMA, ','},
+        {Token::SEMI,  ';'},
+        {Token::EQ,    '='},
+        {Token::BT,    '>'},
+        {Token::LT,    '<'},
+        {Token::SQ,    '\''}
+};
+
+combinedSymbols Token::csmb[] = {
+        {Token::AND, "&&"},
+        {Token::OR,  "||"},
+        {Token::NEQ, "!="},
+        {Token::BET, ">="},
+        {Token::LET, "<="}
+};
+
+Token::Token(Type type) : type(type) { }
+
+Token::Token(int value) : type(INT), value(new int(value)) { }
+
+Token::Token(double value) : type(DOUBLE), value(new double(value)) { }
+
+Token::Token(string value, Type type) : type(type), value(new string(value)) { }
+
+int Token::Int() const {
+    return *((int *) value);
 }
 
-IntToken::IntToken(TokenType type, int value) : Token(type), value(value) { }
-
-const Token &IntToken::operator=(const Token &another) {
-    this->type = another.type;
-    const IntToken *temp = dynamic_cast<const IntToken *>(&another);
-    if (temp) this->value = temp->value;
-    return *this;
+double Token::Double() const {
+    return *((double *) value);
 }
 
-StringToken::StringToken(TokenType type, char *value) : Token(type), value(value) {
+string Token::String() const {
+    return *((string *) value);
 }
 
-const Token &StringToken::operator=(const Token &another) {
-    this->type = another.type;
-    this->value = NULL;
-    const StringToken *temp = dynamic_cast<const StringToken *>(&another);
-    if (temp && temp->value) {
-        this->value = new char[strlen(temp->value) + 1];
-        strcpy(this->value, temp->value);
-    }
-    return *this;
-}
 
-StringToken::~StringToken() {
-    delete[] value;
-}
 
-FloatToken::FloatToken(TokenType type, double value) : Token(type), value(value) { }
 
-const Token &FloatToken::operator=(const Token &another) {
-    this->type = another.type;
-    const FloatToken *temp = dynamic_cast<const FloatToken *>(&another);
-    if (temp) this->value = temp->value;
-    return *this;
-}
+
 
 
 

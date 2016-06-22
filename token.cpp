@@ -10,7 +10,7 @@ struct singleKeyKeywords Token::skk[] = {
         {Token::FROM,   "from"},
         {Token::WHERE,  "where"},
         {Token::INT,    "int"},
-        {Token::FLOAT, "float"},
+        {Token::FLOAT,  "float"},
         {Token::CHAR,   "char"},
         {Token::VALUES, "values"},
         {Token::ON,     "on"}
@@ -35,7 +35,8 @@ symbols Token::smb[] = {
         {Token::BT,    '>'},
         {Token::LT,    '<'},
         {Token::SQ,    '\''},
-        {Token::NOT,   '!'}
+        {Token::NOT,   '!'},
+        {Token::STAR,  '*'}
 };
 
 combinedSymbols Token::csmb[] = {

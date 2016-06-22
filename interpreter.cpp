@@ -122,7 +122,7 @@ void Interpreter::createTable() {
     TableMeta *table = catalogManager->findTableMetaFromId(tableId);
     RecordManager::CreateTable(*table);
 
-    if(getNextToken().type == Token::SEMI) interpret();
+    if (getNextToken().type == Token::SEMI) interpret();
 }
 
 void Interpreter::createIndex() {
@@ -141,7 +141,7 @@ void Interpreter::createIndex() {
         else if (temp.type == Token::COMMA) continue;
         else throw error("column or )", temp.type);
     }
-    if(getNextToken().type == Token::SEMI) interpret();
+    if (getNextToken().type == Token::SEMI) interpret();
 
     cout << "create index " << indexName.String() << " on " << tableName.String() << " on columns: ";
     for (int i = 0; i < columns.size(); ++i) cout << columns[i] << " ";
@@ -162,12 +162,22 @@ void Interpreter::select() {
     vector<int> attrIndexes;
 
     bool hasCondition = false;
+    bool selectAllAttrs = false;
+
+    Token temp;
 
     //attributes
     while (1) {
-        attrName = getNextToken(Token::ID);
-        attrNames.push_back(attrName.String());
-        Token temp = getNextToken();
+        temp = getNextToken();
+        if (temp.type == Token::ID) {
+            attrName = temp;
+            attrNames.push_back(attrName.String());
+        }
+        else if (temp.type == Token::STAR) {
+            selectAllAttrs = true;
+        }
+        else throw error("* or attributes", temp.type);
+        temp = getNextToken();
         if (temp.type == Token::COMMA) continue;
         else if (temp.type == Token::FROM) break;
         else throw error(", or from", temp.type);
@@ -175,14 +185,20 @@ void Interpreter::select() {
 
     //tables
     tableName = getNextToken(Token::ID);
-    Token temp = getNextToken();
+    temp = getNextToken();
     if (temp.type == Token::WHERE) hasCondition = true;
 
     int tableId = catalogManager->getTableIdFromName(tableName.String());
     TableMeta *tableMeta = catalogManager->findTableMetaFromId(tableId);
 
-    for (int i = 0; i < attrNames.size(); ++i) {
-        attrIndexes.push_back(tableMeta->attrMap[attrNames[i]]);
+    if (selectAllAttrs) {
+        for (int i = 0; i < tableMeta->attrs.size(); ++i) {
+            attrIndexes.push_back(i);
+        }
+    } else {
+        for (int i = 0; i < attrNames.size(); ++i) {
+            attrIndexes.push_back(tableMeta->attrMap[attrNames[i]]);
+        }
     }
 
     //where
@@ -198,9 +214,15 @@ void Interpreter::select() {
         TableCell *cell = rows[j]->head;
         while (cell != NULL) {
             switch (cell->type) {
-                case TableMeta::INT: cout << cell->Int(); break;
-                case TableMeta::FLOAT: cout << cell->Float(); break;
-                case TableMeta::CHAR: cout << cell->Char(); break;
+                case TableMeta::INT:
+                    cout << cell->Int();
+                    break;
+                case TableMeta::FLOAT:
+                    cout << cell->Float();
+                    break;
+                case TableMeta::CHAR:
+                    cout << cell->Char();
+                    break;
             }
             cout << " | ";
             cell = cell->Next;
@@ -252,7 +274,7 @@ void Interpreter::insertInto() {
         }
     }
     RecordManager::InsertRecords(*tableMeta, &tableRow);
-    if(getNextToken().type == Token::SEMI) interpret();
+    if (getNextToken().type == Token::SEMI) interpret();
 
 }
 

@@ -23,8 +23,9 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 	//read file
 	uint32_t TempRecOffset;
 	uint32_t TempInnerOffset;
-	TableRow *TempTableRow;
-	TableCell *TempTableCell;
+	TableRow *TempTableRow = NULL;
+	TableCell *TempTableCell = NULL;
+	char * TempCPtr = NULL;
 	streampos size;
 	char *memblock = NULL;
 	ifstream TableFile(fileName.data(), ios::in | ios::binary | ios::ate);
@@ -80,20 +81,17 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 				iter != InnerOffsets.end();
 				++iter, ++it) {
 
-
 				switch (it->type) {
 				case TableMeta::INT:
-					*TempTableCell = new TableCell((int)CharToInt(memblock + TempRecOffset + *iter));
+					TempTableCell = new TableCell((int)CharToInt(memblock + TempRecOffset + *iter));
 					break;
 				case TableMeta::FLOAT:
-					*TempTableCell = new TableCell(CharToFloat(memblock + TempRecOffset + *iter));
+					TempTableCell = new TableCell(CharToFloat(memblock + TempRecOffset + *iter));
 					break;
 				case TableMeta::CHAR:
-					*TempTableCell = new TableCell;
-					//char 还是不太方便
-					TempTableCell->cp = new char[it->charNum];
-					memcpy(TempTableCell->cp, memblock + TempRecOffset + *iter, it->charNum);
-					TempTableCell->charNum = it->charNum;
+					TempCPtr = new char[it->charNum];
+					memcpy(TempCPtr, memblock + TempRecOffset + *iter, it->charNum);
+					TempTableCell = new TableCell(TempCPtr, it->charNum);
 					break;
 				}
 //				(*TempTableCell)->Next = TempTableRow->end;

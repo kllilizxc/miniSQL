@@ -6,6 +6,7 @@ TableCell::TableCell() : type(TableMeta::INT), ip(new uint32_t(0)) { }
 TableCell::TableCell(TableCell *tableCell) {
 	type = tableCell->type;
 	charNum = tableCell->charNum;
+	char *TempChar = NULL;
 	switch (tableCell->type)
 	{
 		case TableMeta::INT:
@@ -15,8 +16,9 @@ TableCell::TableCell(TableCell *tableCell) {
 			fp = new float(*(tableCell->fp));
 			break;
 		case TableMeta::CHAR:
-			cp = new char[tableCell->charNum];
-			memcpy(cp, tableCell->cp, tableCell->charNum);
+			TempChar = new char[tableCell->charNum];
+			memcpy(TempChar, tableCell->cp, tableCell->charNum);
+			cp = TempChar;
 			break;
 		default:
 			break;
@@ -28,8 +30,8 @@ TableCell::TableCell(int value) : type(TableMeta::INT), ip(new uint32_t(value)) 
 
 TableCell::TableCell(const float value) : type(TableMeta::FLOAT), fp(new float(value)) { }
 
-TableCell::TableCell(const char *value, int charNum) : type(TableMeta::CHAR), charNum(charNum), cp(new char[charNum + 1]) {
-	strcpy(cp, value);
+TableCell::TableCell(const char *value, int charNum) : type(TableMeta::CHAR), charNum(charNum), cp(new char) {
+	cp = value;
 }
 
 TableCell::~TableCell() {
@@ -58,7 +60,7 @@ float TableCell::Float() {
 	return *fp;
 }
 
-char *TableCell::Char() {
+const char *TableCell::Char() {
 	return cp;
 }
 

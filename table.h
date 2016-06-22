@@ -4,7 +4,7 @@ class TableCell {
 public:
 	union {
 		uint32_t *ip;
-		char *cp;
+		const char *cp;
 		float *fp;
 	};
 	TableMeta::ATTRTYPE type;
@@ -20,7 +20,7 @@ public:
 	int Int();
 	uint32_t UInt32_t();
 	float Float();
-	char *Char();
+	const char *Char();
 };
 
 class TableRow {

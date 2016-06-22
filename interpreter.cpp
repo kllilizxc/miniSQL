@@ -58,7 +58,7 @@ void Interpreter::createTable() {
     if (tableName.type != Token::ID) {
         throw error("tableName", "not a valid variable name");
     }
-    if(catalogManager->getTableIdFromName(tableName.String()) == -1) throw error("table already exits!");
+    if(catalogManager->getTableIdFromName(tableName.String()) != -1) throw error("table already exits!");
     int tableId = catalogManager->createTableMeta(tableName.String());
     // (
     getNextToken(Token::LBP);

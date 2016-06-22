@@ -147,6 +147,7 @@ STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 	DbInfoRec TempDbInfoRec;
 	char IdBuff[9];
 	if (Dbinfo.DbInfoRecs.find(tableMeta.id) != Dbinfo.DbInfoRecs.end()) {
+		cout << "this table exist" << endl;
 		return EXIST;
 	}
 	TempDbInfoRec.id = tableMeta.id;

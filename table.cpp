@@ -1,6 +1,28 @@
 #include <cstring>
+#include <iostream>
 #include "table.h"
 TableCell::TableCell() : type(TableMeta::INT), ip(new uint32_t(0)) { }
+
+TableCell::TableCell(TableCell *tableCell) {
+	type = tableCell->type;
+	charNum = tableCell->charNum;
+	switch (tableCell->type)
+	{
+		case TableMeta::INT:
+			ip = new uint32_t(*(tableCell->ip));
+			break;
+		case TableMeta::FLOAT:
+			fp = new float(*(tableCell->fp));
+			break;
+		case TableMeta::CHAR:
+			cp = new char[tableCell->charNum];
+			memcpy(cp, tableCell->cp, tableCell->charNum);
+			break;
+		default:
+			break;
+	}
+	Next = NULL;
+}
 
 TableCell::TableCell(int value) : type(TableMeta::INT), ip(new uint32_t(value)) { }
 
@@ -40,35 +62,14 @@ void TableRow::append(TableCell *cell) {
 TableRow* TableRow::DeepCopySelf() {
 	TableRow *NewTableRow = new TableRow;
 	TableCell *ptr = head;
-	TableCell **pptr = &(NewTableRow->head);
 
 	NewTableRow->IsEmpty = IsEmpty;
 	if (!IsEmpty) {
 		while (ptr != end) {
-			*pptr = new TableCell();
-			(*pptr)->type = ptr->type;
-			(*pptr)->charNum = ptr->charNum;
-			switch (ptr->type)
-			{
-			case TableMeta::INT:
-				(*pptr)->ip = new uint32_t(*(ptr->ip));
-				break;
-			case TableMeta::FLOAT:
-				(*pptr)->fp = new float(*(ptr->fp));
-				break;
-			case TableMeta::CHAR:
-				(*pptr)->cp = new char[ptr->charNum];
-				memcpy((*pptr)->cp, ptr->cp, ptr->charNum);
-				break;
-			default:
-				break;
-			}
+			NewTableRow->append(new TableCell(ptr));
 			ptr = ptr->Next;
-			NewTableRow->tail = *pptr;
-			pptr = &((*pptr)->Next);
 		}
 	}
-	*pptr = NewTableRow->end;
 	return NewTableRow;
 }
 
@@ -82,3 +83,12 @@ TableCell *TableRow::at(int index) {
 	}
 	return ptr;
 }
+
+TableRow *TableRow::Filter(vector<int> attrIndex) {
+	TableRow *TempTableRow = new TableRow();
+	for(vector<int>::iterator iter = attrIndex.begin(); iter != attrIndex.end(); ++iter) {
+		std::cout << *iter << std::endl;
+		TempTableRow->append(new TableCell(at(*iter)));
+	}
+	return TempTableRow;
+};

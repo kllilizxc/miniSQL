@@ -403,8 +403,8 @@ vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> att
 		cout << TableFileName << endl;
 		TempTable = BufferTable::ReadTable(TableFileName, tableMeta);
 		for (vector<TableRow*>::iterator iter = TempTable->Table.begin(); iter != TempTable->Table.end(); ++iter) {
-			if (HandleCondtion(*iter, condition)) {
-				Finale.push_back((*iter)->DeepCopySelf());
+			if (!(*iter)->IsEmpty && (!condition || HandleCondtion(*iter, condition))) {
+				Finale.push_back((*iter)->Filter(attrIndex));
 				cout << "find one !" << endl;
 			}
 		}
@@ -445,7 +445,7 @@ int RecordManager::DeleteRecords(TableMeta tableMeta, ConditionNode *condition) 
 	while (strlen(TableFileName.data())) {
 		TempTable = BufferTable::ReadTable(TableFileName, tableMeta);
 		for (vector<TableRow*>::iterator iter = TempTable->Table.begin(); iter != TempTable->Table.end(); ++iter) {
-			if (HandleCondtion(*iter, condition)) {
+			if (!(*iter)->IsEmpty && (!condition || HandleCondtion(*iter, condition))) {
 				if(TempTable->Del(*iter) == SUCCESS)
 					DelRecords++;
 			}

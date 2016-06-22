@@ -335,6 +335,7 @@ ConditionNode *Interpreter::buildFactor(TableMeta &table) {
             break;
         case Token::NEQ:
             node = new ConditionNode(ConditionNode::NEQ);
+            break;
         default:
             throw error("= or > or < or >= or <= or !=", op.type);
     }

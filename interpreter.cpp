@@ -210,6 +210,7 @@ void Interpreter::select() {
     vector<TableRow *> rows;
     rows = RecordManager::GetRecords(*tableMeta, attrIndexes, con);
 
+    cout << "----------------------------------" << endl;
     for (int j = 0; j < rows.size(); ++j) {
         TableCell *cell = rows[j]->head;
         while (cell != NULL) {
@@ -229,6 +230,8 @@ void Interpreter::select() {
         }
         cout << endl;
     }
+    cout << "----------------------------------" << endl << endl;
+
     interpret();
 }
 

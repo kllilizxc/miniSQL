@@ -16,6 +16,7 @@ using namespace std;
 BufferTable::BufferMap BufferTable::BuffList;
 
 BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
+	cout << "-------------" << endl;
 	IsDirty = false;
 	RefNum = 0;
 	attrs = tableMeta.attrs;
@@ -95,12 +96,30 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 					(*TempTableCell)->charNum = it->charNum;
 					break;
 				}
+				(*TempTableCell)->Next = TempTableRow->end;
+				TempTableRow->tail = (*TempTableCell);
 				TempTableCell = &((*TempTableCell)->Next);
 			}
 		}
+		for (TableCell *ptr = TempTableRow->head; ptr != TempTableRow->end; ptr = ptr->Next) {
+			switch (ptr->type) {
+				case TableMeta::INT:
+					cout << *(ptr->ip);
+					break;
+				case TableMeta::FLOAT:
+					cout << *(ptr->fp);
+					break;
+				case TableMeta::CHAR:
+					cout << ptr->cp;
+					break;
+			}
+			cout << " | ";
+		}
+		cout << endl;
 		Table.push_back(TempTableRow);
 		TempRecOffset += RecLength;
 	}
+	cout << "-------------" << endl;
 	//release
 	delete[] memblock;
 };
@@ -115,7 +134,7 @@ STATUS BufferTable::Push(TableRow *tableRow) {
 	}
 	else {
 		++RecCount;
-		Table.push_back(tableRow);
+		Table.push_back(tableRow->DeepCopySelf());
 		IsDirty = true;
 		return SUCCESS;
 	}
@@ -159,6 +178,11 @@ BufferTable::~BufferTable() {//链表内存回收
 				delete[] TempTableCell->cp;
 				break;
 			}
+			//monkey patch
+			//if(TempTableCell->Next == (*iter)->end) {
+			//	delete TempTableCell;
+			//	break;
+			//}
 			delete TempTableCell;
 		}
 		delete *iter;
@@ -247,8 +271,8 @@ BufferTable *BufferTable::ReadTable(string fileName, TableMeta tableMeta) {
 					BuffList.erase(iter->first);
 				}
 			}
-			BuffList[fileName] = new BufferTable(fileName, tableMeta);
 		}
+		BuffList[fileName] = new BufferTable(fileName, tableMeta);
 	}
 	++BuffList[fileName]->RefNum;
 	return BuffList[fileName];

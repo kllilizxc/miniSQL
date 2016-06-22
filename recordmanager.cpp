@@ -252,15 +252,21 @@ int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
 }
 
 bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
+	cout << "now : " << condition->type << endl;
 	if (condition->left->type != ConditionNode::ATTR_INT
 		&& condition->left->type != ConditionNode::ATTR_FLOAT
-		&& condition->left->type != ConditionNode::ATTR_FLOAT
+		&& condition->left->type != ConditionNode::ATTR_CHAR
 		&& condition->left->type != ConditionNode::INT
 		&& condition->left->type != ConditionNode::FLOAT
 		&& condition->left->type != ConditionNode::CHAR) {
 		//此节点为逻辑运算符节点
+		if(condition->type == ConditionNode::NOT) {
+			return HandleCondtion(tableRow, condition->left);
+		}
 		bool LeftResult = false, RightResult = false;
+		cout << "left : " << condition->left->type << endl;
 		LeftResult = HandleCondtion(tableRow, condition->left);
+		cout << "right : " << condition->right->type << endl;
 		RightResult = HandleCondtion(tableRow, condition->right);
 		switch (condition->type) {
 		case ConditionNode::AND:
@@ -344,6 +350,7 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 			break;
 		case ConditionNode::INT:
 			RightI = condition->right->getIntValue();
+			cout << LeftI << " " << RightI << " " << CompareValue(LeftI, RightI, AType) << endl;
 			return CompareValue(LeftI, RightI, AType);
 			break;
 		case ConditionNode::FLOAT:
@@ -393,8 +400,10 @@ vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> att
 	while (strlen(TableFileName.data())) {
 		TempTable = BufferTable::ReadTable(TableFileName, tableMeta);
 		for (vector<TableRow*>::iterator iter = TempTable->Table.begin(); iter != TempTable->Table.end(); ++iter) {
-			if (HandleCondtion(*iter, condition))
+			if (HandleCondtion(*iter, condition)) {
 				Finale.push_back((*iter)->DeepCopySelf());
+				cout << "find one !" << endl;
+			}
 		}
 		TableFileName = TempTable->NextFileName;
 		TempTable->Release();

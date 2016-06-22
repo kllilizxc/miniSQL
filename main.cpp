@@ -1,5 +1,6 @@
 #include <iostream>
 #include "interpreter.h"
+#include "buffermanager.h"
 
 using namespace std;
 
@@ -33,7 +34,6 @@ int main() {
 //        t = lexer.getNextToken();
 //    }
     char instr[100];
-
     Interpreter *interpreter = new Interpreter;
     while (1) {
         cout << "miniSQL> ";
@@ -42,5 +42,5 @@ int main() {
         interpreter->reset(instr);
         interpreter->interpret();
     }
-    delete interpreter;
+    BufferTable::WriteBackAll();
 }

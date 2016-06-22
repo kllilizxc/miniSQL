@@ -39,11 +39,11 @@ void TableRow::append(TableCell *cell) {
 
 TableRow* TableRow::DeepCopySelf() {
 	TableRow *NewTableRow = new TableRow;
+	TableCell *ptr = head;
+	TableCell **pptr = &(NewTableRow->head);
 
 	NewTableRow->IsEmpty = IsEmpty;
 	if (!IsEmpty) {
-		TableCell *ptr = head;
-		TableCell **pptr = &(NewTableRow->head);
 		while (ptr != end) {
 			*pptr = new TableCell();
 			(*pptr)->type = ptr->type;
@@ -64,9 +64,11 @@ TableRow* TableRow::DeepCopySelf() {
 				break;
 			}
 			ptr = ptr->Next;
+			NewTableRow->tail = *pptr;
 			pptr = &((*pptr)->Next);
 		}
 	}
+	*pptr = NewTableRow->end;
 	return NewTableRow;
 }
 

@@ -22,6 +22,7 @@ private:
     ConditionNode *buildConditionTree();
     ConditionNode *buildFactor();
     ConditionNode *buildTerm();
+    bool compareType(ConditionNode::conType a, ConditionNode::conType b);
 public:
     Interpreter(char *instr = 0);
     ~Interpreter();

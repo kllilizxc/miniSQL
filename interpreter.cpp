@@ -325,7 +325,7 @@ ConditionNode *Interpreter::buildFactor(TableMeta &table) {
             throw error("= or > or < or >= or <= or !=", op.type);
     }
     ConditionNode *right = buildTerm(table);
-    if(!compareType(left->type, right->type)) throw error("condition type not match!");
+    if(!compareType(right->type, left->type)) throw error("condition type not match!");
     node->left = left;
     node->right = right;
     return node;
@@ -360,16 +360,18 @@ ConditionNode *Interpreter::buildConditionTree(TableMeta &table) {
 bool Interpreter::compareType(ConditionNode::conType a, ConditionNode::conType b) {
     ConditionNode::conType typeA, typeB;
     if(a == ConditionNode::ATTR_INT) typeA = ConditionNode::INT;
-    if(a == ConditionNode::ATTR_FLOAT) typeA = ConditionNode::FLOAT;
-    if(a == ConditionNode::ATTR_CHAR) typeA = ConditionNode::CHAR;
+    else if(a == ConditionNode::ATTR_FLOAT) typeA = ConditionNode::FLOAT;
+    else if(a == ConditionNode::ATTR_CHAR) typeA = ConditionNode::CHAR;
+    else typeA = a;
 
     if(b == ConditionNode::ATTR_INT) typeB = ConditionNode::INT;
-    if(b == ConditionNode::ATTR_FLOAT) typeB = ConditionNode::FLOAT;
-    if(b == ConditionNode::ATTR_CHAR) typeB = ConditionNode::CHAR;
+    else if(b == ConditionNode::ATTR_FLOAT) typeB = ConditionNode::FLOAT;
+    else if(b == ConditionNode::ATTR_CHAR) typeB = ConditionNode::CHAR;
+    else typeB = b;
 
-    return (a == b) ||
-            (a == ConditionNode::INT && b == ConditionNode::FLOAT) ||
-            (a == ConditionNode::FLOAT && b == ConditionNode::INT);
+    return (typeA == typeB) ||
+            (typeA == ConditionNode::INT && typeB == ConditionNode::FLOAT) ||
+            (typeA == ConditionNode::FLOAT && typeB == ConditionNode::INT);
 }
 
 

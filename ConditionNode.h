@@ -24,9 +24,9 @@ public:
     ConditionNode *right;
     ConditionNode::conType type;
     ConditionNode(ConditionNode::conType type);
-    ConditionNode(int value, ConditionNode::conType type = INT);
-    ConditionNode(double value, ConditionNode::conType type = FLOAT);
-    ConditionNode(string value, ConditionNode::conType type = CHAR);
+    ConditionNode(int value, ConditionNode::conType type = ConditionNode::INT);
+    ConditionNode(float value, ConditionNode::conType type = ConditionNode::FLOAT);
+    ConditionNode(string value, ConditionNode::conType type = ConditionNode::CHAR);
     int getAttrValue();
     int getIntValue();
     double getFloatValue();

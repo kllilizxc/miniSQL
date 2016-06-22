@@ -58,7 +58,7 @@ void Interpreter::createTable() {
     if (tableName.type != Token::ID) {
         throw error("tableName", "not a valid variable name");
     }
-    if(catalogManager->getTableIdFromName(tableName.String()) != -1) throw error("table already exits!");
+    if (catalogManager->getTableIdFromName(tableName.String()) != -1) throw error("table already exits!");
     int tableId = catalogManager->createTableMeta(tableName.String());
     // (
     getNextToken(Token::LBP);
@@ -261,12 +261,13 @@ void Interpreter::deleteFrom() {
 
     //conditions
     const Token temp = getNextToken();
+    ConditionNode *con = NULL;
     if (temp.type == Token::WHERE) {
-        ConditionNode *con = buildConditionTree(*tableMeta);
-        RecordManager::DeleteRecords(*tableMeta, con);
+        con = buildConditionTree(*tableMeta);
     }
-    else if (temp.type == Token::EOI) return;
+    else if (temp.type == Token::EOI);
     else throw error("where", temp.type);
+    RecordManager::DeleteRecords(*tableMeta, con);
 }
 
 ConditionNode *Interpreter::buildTerm(TableMeta &table) {
@@ -279,9 +280,9 @@ ConditionNode *Interpreter::buildTerm(TableMeta &table) {
         case Token::ID: {
             Attr *attr = table.getAttrByName(temp.String());
             int index = table.attrMap[temp.String()];
-            if(attr->type == TableMeta::INT) return new ConditionNode(index, ConditionNode::ATTR_INT);
-            if(attr->type == TableMeta::FLOAT) return new ConditionNode(index, ConditionNode::ATTR_FLOAT);
-            if(attr->type == TableMeta::CHAR) return new ConditionNode(index, ConditionNode::ATTR_CHAR);
+            if (attr->type == TableMeta::INT) return new ConditionNode(index, ConditionNode::ATTR_INT);
+            if (attr->type == TableMeta::FLOAT) return new ConditionNode(index, ConditionNode::ATTR_FLOAT);
+            if (attr->type == TableMeta::CHAR) return new ConditionNode(index, ConditionNode::ATTR_CHAR);
         }
         case Token::INTEGER: {
             return new ConditionNode(temp.Int());
@@ -340,7 +341,7 @@ ConditionNode *Interpreter::buildFactor(TableMeta &table) {
             throw error("= or > or < or >= or <= or !=", op.type);
     }
     ConditionNode *right = buildTerm(table);
-    if(!compareType(right->type, left->type)) throw error("condition type not match!");
+    if (!compareType(right->type, left->type)) throw error("condition type not match!");
     node->left = left;
     node->right = right;
     return node;
@@ -374,19 +375,19 @@ ConditionNode *Interpreter::buildConditionTree(TableMeta &table) {
 
 bool Interpreter::compareType(ConditionNode::conType a, ConditionNode::conType b) {
     ConditionNode::conType typeA, typeB;
-    if(a == ConditionNode::ATTR_INT) typeA = ConditionNode::INT;
-    else if(a == ConditionNode::ATTR_FLOAT) typeA = ConditionNode::FLOAT;
-    else if(a == ConditionNode::ATTR_CHAR) typeA = ConditionNode::CHAR;
+    if (a == ConditionNode::ATTR_INT) typeA = ConditionNode::INT;
+    else if (a == ConditionNode::ATTR_FLOAT) typeA = ConditionNode::FLOAT;
+    else if (a == ConditionNode::ATTR_CHAR) typeA = ConditionNode::CHAR;
     else typeA = a;
 
-    if(b == ConditionNode::ATTR_INT) typeB = ConditionNode::INT;
-    else if(b == ConditionNode::ATTR_FLOAT) typeB = ConditionNode::FLOAT;
-    else if(b == ConditionNode::ATTR_CHAR) typeB = ConditionNode::CHAR;
+    if (b == ConditionNode::ATTR_INT) typeB = ConditionNode::INT;
+    else if (b == ConditionNode::ATTR_FLOAT) typeB = ConditionNode::FLOAT;
+    else if (b == ConditionNode::ATTR_CHAR) typeB = ConditionNode::CHAR;
     else typeB = b;
 
     return (typeA == typeB) ||
-            (typeA == ConditionNode::INT && typeB == ConditionNode::FLOAT) ||
-            (typeA == ConditionNode::FLOAT && typeB == ConditionNode::INT);
+           (typeA == ConditionNode::INT && typeB == ConditionNode::FLOAT) ||
+           (typeA == ConditionNode::FLOAT && typeB == ConditionNode::INT);
 }
 
 void Interpreter::reset(const char *instr) {

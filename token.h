@@ -21,7 +21,7 @@ private:
 public:
     static const int SINGLE_KEY_KEYWORDS_NUM = 9;
     static const int DOUBLE_KEY_KEYWORDS_NUM = 5;
-    static const int SYMBOLS_NUM = 11;
+    static const int SYMBOLS_NUM = 12;
     static const int COMBINED_SYMBOLS_NUM = 5;
 
     enum Type {
@@ -32,7 +32,7 @@ public:
         AND, OR, NOT, //逻辑符号 27
         PRIMARY,UNIQUE, //表属性 30
         INT, FLOAT, CHAR, //数据类型 32
-        EOI, ERROR //其他 35
+        EOI, ERROR, STAR //其他 35
     };
 
     static singleKeyKeywords skk[];

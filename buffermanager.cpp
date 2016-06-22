@@ -95,6 +95,8 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 					(*TempTableCell)->charNum = it->charNum;
 					break;
 				}
+				(*TempTableCell)->Next = TempTableRow->end;
+				TempTableRow->tail = (*TempTableCell);
 				TempTableCell = &((*TempTableCell)->Next);
 			}
 		}
@@ -115,7 +117,7 @@ STATUS BufferTable::Push(TableRow *tableRow) {
 	}
 	else {
 		++RecCount;
-		Table.push_back(tableRow);
+		Table.push_back(tableRow->DeepCopySelf());
 		IsDirty = true;
 		return SUCCESS;
 	}
@@ -247,8 +249,8 @@ BufferTable *BufferTable::ReadTable(string fileName, TableMeta tableMeta) {
 					BuffList.erase(iter->first);
 				}
 			}
-			BuffList[fileName] = new BufferTable(fileName, tableMeta);
 		}
+		BuffList[fileName] = new BufferTable(fileName, tableMeta);
 	}
 	++BuffList[fileName]->RefNum;
 	return BuffList[fileName];

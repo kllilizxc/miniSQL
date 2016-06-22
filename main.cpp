@@ -1,13 +1,14 @@
 #include <iostream>
 #include "interpreter.h"
+#include "buffermanager.h"
 
 using namespace std;
 
 int main() {
     //char instr[] = "sadd create table 123) adwfa 12431.123 select  insertInto into 324.12 delete from create index && || > >= {} ad.sad";
     //char instr[] = "create table sad { a int, b float unique, c char(3), primary key(a) }";
-    char instr[] = "select a, b, c from sad where !(b < 3.0 || b < 2.0) && a > 5 || c < 'frog'";
-    //char instr[] = "insert into sad values(123, 23.21, 'asc' )";
+    //char instr[] = "select a, b, c from sad where !(b < 3.0 || b < 2.0) && a > 5 || c < 'frog'";
+    char instr[] = "insert into sad values(123, 23.21, 'asc' )";
     //char instr[] = "delete from A where";
     //char instr[] = "create index I on A (a, b, c)";
 
@@ -35,5 +36,6 @@ int main() {
 
     Interpreter *interpreter = new Interpreter(instr);
     interpreter->interpret();
+    BufferTable::WriteBackAll();
     delete interpreter;
 }

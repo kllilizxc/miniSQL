@@ -11,7 +11,7 @@ TableCell::TableCell(const char *value, int charNum) : type(TableMeta::CHAR), ch
 }
 
 int TableCell::Int() {
-	return *ip;
+	return (int)*ip;
 }
 
 float TableCell::Float() {

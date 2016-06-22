@@ -21,7 +21,6 @@ bool CompareValue(string a, string b, ConditionNode::conType type) {
 	}
 }
 bool CompareValue(int a, int b, ConditionNode::conType type) {
-	std::cout << a << " " << b << " " << (a==b) << std::endl;
 	switch (type)
 	{
 	case ConditionNode::EQ:

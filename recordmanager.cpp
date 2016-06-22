@@ -292,6 +292,7 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 		float RightF;
 		string RightS;
 		//转换左边
+		cout << "convertleft" << endl;
 		switch (condition->left->type)
 		{
 		case ConditionNode::ATTR_INT:
@@ -328,6 +329,7 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 			break;
 		}
 		//右边
+		cout << "convertright" << endl;
 		switch (condition->right->type)
 		{
 		case ConditionNode::ATTR_INT:
@@ -336,30 +338,30 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 			switch (tableRow->at(condition->right->getAttrValue())->type) {
 			case TableMeta::INT:
 				RightI = *(tableRow->at(condition->right->getAttrValue())->ip);
-				return CompareValue(LeftI, RightI, AType);
+				return CompareValue(LeftI, RightI, condition->type);
 				break;
 			case TableMeta::FLOAT:
 				RightF = *(tableRow->at(condition->right->getAttrValue())->fp);
-				return CompareValue(LeftF, RightF, AType);
+				return CompareValue(LeftF, RightF, condition->type);
 				break;
 			case TableMeta::CHAR:
 				RightS = string(tableRow->at(condition->right->getAttrValue())->cp);
-				return CompareValue(LeftS, RightS, AType);
+				return CompareValue(LeftS, RightS, condition->type);
 				break;
 			}
 			break;
 		case ConditionNode::INT:
+			cout << "attr node" << endl;
 			RightI = condition->right->getIntValue();
-			cout << LeftI << " " << RightI << " " << CompareValue(LeftI, RightI, AType) << endl;
-			return CompareValue(LeftI, RightI, AType);
+			return CompareValue(LeftI, RightI, condition->type);
 			break;
 		case ConditionNode::FLOAT:
 			RightF = condition->right->getFloatValue();
-			return CompareValue(LeftF, RightF, AType);
+			return CompareValue(LeftF, RightF, condition->type);
 			break;
 		case ConditionNode::CHAR:
 			RightS = condition->right->getCharValue();
-			return CompareValue(LeftS, RightS, AType);
+			return CompareValue(LeftS, RightS, condition->type);
 			break;
 		default:
 			break;
@@ -398,6 +400,7 @@ vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> att
 	BufferTable *TempTable;
 	string TempTableFileName;
 	while (strlen(TableFileName.data())) {
+		cout << TableFileName << endl;
 		TempTable = BufferTable::ReadTable(TableFileName, tableMeta);
 		for (vector<TableRow*>::iterator iter = TempTable->Table.begin(); iter != TempTable->Table.end(); ++iter) {
 			if (HandleCondtion(*iter, condition)) {

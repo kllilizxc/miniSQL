@@ -72,7 +72,6 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 		TempTableCell = &(TempTableRow->head);
 		if (memblock[TempRecOffset] == 1) {
 			TempTableRow->IsEmpty = 1;
-			TempTableRow->head = TempTableRow->tail;
 		}
 		else {
 			TempTableRow->IsEmpty = 0;
@@ -99,7 +98,6 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 				TempTableCell = &((*TempTableCell)->Next);
 			}
 		}
-		*TempTableCell = TempTableRow->tail;
 		Table.push_back(TempTableRow);
 		TempRecOffset += RecLength;
 	}
@@ -147,7 +145,7 @@ BufferTable::~BufferTable() {//链表内存回收
 		WriteBack();
 	TableCell* TempTableCell;
 	for (vector<TableRow*>::iterator iter = Table.begin(); iter != Table.end(); ++iter) {
-		while (TempTableCell = (*iter)->head, TempTableCell != (*iter)->tail) {
+		while (TempTableCell = (*iter)->head, TempTableCell != (*iter)->end) {
 			(*iter)->head = (*iter)->head->Next;
 			//delete
 			switch (TempTableCell->type) {
@@ -205,7 +203,7 @@ STATUS BufferTable::WriteBack() {
 		else {
 			memcpy(memblock + TempRecOffset, full, 1);
 			vector<uint32_t>::iterator iit = InnerOffsets.begin();
-			for (TableCell *ptr = (*titer)->head; ptr != (*titer)->tail && iit != InnerOffsets.end(); ptr = ptr->Next, ++iit) {
+			for (TableCell *ptr = (*titer)->head; ptr != (*titer)->end && iit != InnerOffsets.end(); ptr = ptr->Next, ++iit) {
 				switch (ptr->type) {
 				case TableMeta::INT:
 					memcpy(memblock + TempRecOffset + *iit, IntToChar(*(ptr->ip)), getSizeof(TableMeta::INT));

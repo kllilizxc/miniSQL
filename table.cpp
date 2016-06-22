@@ -23,27 +23,28 @@ char *TableCell::Char() {
 }
 
 
-TableRow::TableRow() : IsEmpty(0), head(new TableCell(0)), tail(head) {
-	tail->Next = NULL;
-}
+TableRow::TableRow() : IsEmpty(0), end(NULL), tail(end), head(end) { }
 
 void TableRow::append(TableCell *cell) {
-	tail->Next = cell;
-	tail = cell;
-	tail->Next = NULL;
+	if(head == end) {
+		head = cell;
+		tail = cell;
+	}
+	else {
+		tail->Next = cell;
+		tail = tail->Next;
+	}
+	tail->Next = end;
 }
 
 TableRow* TableRow::DeepCopySelf() {
 	TableRow *NewTableRow = new TableRow;
 
 	NewTableRow->IsEmpty = IsEmpty;
-	if (IsEmpty) {
-		NewTableRow->head = NewTableRow->tail;
-	}
-	else {
+	if (!IsEmpty) {
 		TableCell *ptr = head;
 		TableCell **pptr = &(NewTableRow->head);
-		while (ptr != tail) {
+		while (ptr != end) {
 			*pptr = new TableCell();
 			(*pptr)->type = ptr->type;
 			(*pptr)->charNum = ptr->charNum;
@@ -65,7 +66,6 @@ TableRow* TableRow::DeepCopySelf() {
 			ptr = ptr->Next;
 			pptr = &((*pptr)->Next);
 		}
-		(*pptr)->Next = NewTableRow->tail;
 	}
 	return NewTableRow;
 }
@@ -73,7 +73,7 @@ TableRow* TableRow::DeepCopySelf() {
 TableCell *TableRow::at(int index) {
 	TableCell *ptr = head;
 	if (IsEmpty) {
-		return tail;
+		return end;
 	}
 	for (int i = 0; i < index; ++i) {
 		ptr = ptr->Next;

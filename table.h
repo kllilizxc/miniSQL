@@ -23,8 +23,9 @@ public:
 class TableRow {
 public:
 	char IsEmpty;
-	TableCell *head;
+	TableCell *end;
 	TableCell *tail;
+	TableCell *head;
 	TableRow();
 	void append(TableCell *cell);
 	TableRow* DeepCopySelf();

@@ -207,7 +207,7 @@ void Interpreter::select() {
         }
         cout << endl;
     }
-    if(getNextToken().type == Token::SEMI) interpret();
+    interpret();
 }
 
 void Interpreter::insertInto() {
@@ -272,7 +272,7 @@ void Interpreter::deleteFrom() {
     else if (temp.type == Token::EOI);
     else throw error("where", temp.type);
     RecordManager::DeleteRecords(*tableMeta, con);
-    if(getNextToken().type == Token::SEMI) interpret();
+    interpret();
 
 }
 
@@ -365,6 +365,7 @@ ConditionNode *Interpreter::buildConditionTree(TableMeta &table) {
             case Token::OR:
                 node = new ConditionNode(ConditionNode::OR);
                 break;
+            case Token::SEMI:
             case Token::RP:
             case Token::EOI:
                 return left;

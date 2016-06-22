@@ -69,7 +69,7 @@ void CatalogManager::writeToFile() {
         for (int j = 0; j < attrSize; ++j) {
             Attr &attr = table.attrs[j];
             file << " " << table.findAttrNameByIndex(j);
-            file << " " << attr.type  << " " << attr.charNum << " " << static_cast<int>(attr.property);
+            file << " " << attr.type  << " " << attr.charNum << " " << attr.property;
         }
     }
 
@@ -89,6 +89,7 @@ void CatalogManager::readFromFile() {
     if(!file.is_open()) return;
 
     int tableSize;
+    if(file.peek() == EOF, file.eof()) return;
     file >> tableSize;
     for (int i = 0; i < tableSize; ++i) {
         int tableId;
@@ -100,7 +101,8 @@ void CatalogManager::readFromFile() {
         file >> attrSize;
         for (int j = 0; j < attrSize; ++j) {
             string attrName;
-            int type, charNum, property;
+            int type, charNum;
+            byte property;
             file >> attrName >> type >> charNum >> property;
             Attr attr((TableMeta::ATTRTYPE)type, property, charNum);
             table.attrs.push_back(attr);

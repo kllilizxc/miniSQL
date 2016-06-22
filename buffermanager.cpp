@@ -16,6 +16,7 @@ using namespace std;
 BufferTable::BufferMap BufferTable::BuffList;
 
 BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
+	cout << "-------------" << endl;
 	IsDirty = false;
 	RefNum = 0;
 	attrs = tableMeta.attrs;
@@ -100,9 +101,25 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 				TempTableCell = &((*TempTableCell)->Next);
 			}
 		}
+		for (TableCell *ptr = TempTableRow->head; ptr != TempTableRow->end; ptr = ptr->Next) {
+			switch (ptr->type) {
+				case TableMeta::INT:
+					cout << *(ptr->ip);
+					break;
+				case TableMeta::FLOAT:
+					cout << *(ptr->fp);
+					break;
+				case TableMeta::CHAR:
+					cout << ptr->cp;
+					break;
+			}
+			cout << " | ";
+		}
+		cout << endl;
 		Table.push_back(TempTableRow);
 		TempRecOffset += RecLength;
 	}
+	cout << "-------------" << endl;
 	//release
 	delete[] memblock;
 };
@@ -161,6 +178,11 @@ BufferTable::~BufferTable() {//链表内存回收
 				delete[] TempTableCell->cp;
 				break;
 			}
+			//monkey patch
+			//if(TempTableCell->Next == (*iter)->end) {
+			//	delete TempTableCell;
+			//	break;
+			//}
 			delete TempTableCell;
 		}
 		delete *iter;

@@ -11,20 +11,19 @@
 #include <string>
 #include <map>
 
-using namespace std;
-
 class CatalogManager {
 private:
     const string fileName = "catalog.data";
     vector<TableMeta> tableMetas;
     map<string, int> tableMap;
+    static string readStringFromFile(ifstream &file);
     void writeToFile();
     void readFromFile();
 public:
     CatalogManager();
     ~CatalogManager();
     TableMeta *findTableMetaFromId(int id);
-    string getTableNameFromId(int id);
+    std::string getTableNameFromId(int id);
     int getTableIdFromName(string name);
     int createTableMeta(string name);
     void addAttrToTableMeta(int tableId, string name, Token::Type type, int charNum = 0);

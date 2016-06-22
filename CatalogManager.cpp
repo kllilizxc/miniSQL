@@ -3,8 +3,11 @@
 //
 
 #include <fstream>
+#include <iostream>
 #include "CatalogManager.h"
 #include "error.h"
+
+using namespace std;
 
 int CatalogManager::createTableMeta(string name) {
     int id = tableMetas.size(); //TODO or some other value
@@ -60,16 +63,20 @@ void CatalogManager::writeToFile() {
     if(!file.is_open()) throw error("can not open catalog file for write!");
 
     int tableSize = tableMetas.size();
-    file << tableSize;
+    file.write((char *)(&tableSize), sizeof(int));
     for (int i = 0; i < tableSize; ++i) {
         TableMeta &table = tableMetas[i];
-        file << " " << table.id << " " << getTableNameFromId(table.id);
+        file.write((char *)(&table.id), sizeof(int));
+        file << getTableNameFromId(table.id).data();
         int attrSize = table.attrs.size();
-        file << " " << attrSize;
+        file.write((char *)(&attrSize), sizeof(int));
         for (int j = 0; j < attrSize; ++j) {
             Attr &attr = table.attrs[j];
-            file << " " << table.findAttrNameByIndex(j);
-            file << " " << attr.type  << " " << attr.charNum << " " << attr.property;
+            file << table.findAttrNameByIndex(j).data();
+
+            file.write((char *)(&attr.type), sizeof(int));
+            file.write((char *)(&attr.charNum), sizeof(int));
+            file.write((char *)(&attr.property), sizeof(byte));
         }
     }
 
@@ -90,20 +97,24 @@ void CatalogManager::readFromFile() {
 
     int tableSize;
     if(file.peek() == EOF, file.eof()) return;
-    file >> tableSize;
+    file.read((char *)(&tableSize), sizeof(int));
     for (int i = 0; i < tableSize; ++i) {
         int tableId;
         string tableName;
-        file >> tableId >> tableName;
+        file.read((char *)(&tableId), sizeof(int));
+        tableName = readStringFromFile(file);
         TableMeta table(tableId);
         tableMap[tableName] = tableId;
         int attrSize;
-        file >> attrSize;
+        file.read((char *)(&attrSize), sizeof(int));
         for (int j = 0; j < attrSize; ++j) {
             string attrName;
             int type, charNum;
             byte property;
-            file >> attrName >> type >> charNum >> property;
+            attrName = readStringFromFile(file);
+            file.read((char *)(&type), sizeof(int));
+            file.read((char *)(&charNum), sizeof(int));
+            file.read((char *)(&property), sizeof(byte));
             Attr attr((TableMeta::ATTRTYPE)type, property, charNum);
             table.attrs.push_back(attr);
             table.attrMap[attrName] = j;
@@ -121,6 +132,20 @@ CatalogManager::CatalogManager() {
 CatalogManager::~CatalogManager() {
     writeToFile();
 }
+
+std::string CatalogManager::readStringFromFile(ifstream &file) {
+    char c;
+    file >> c;
+    std::string finalStr;
+    while (c != '\0') {
+        finalStr += c;
+        file >> c;
+    }
+
+    return finalStr;
+}
+
+
 
 
 

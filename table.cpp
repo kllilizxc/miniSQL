@@ -32,8 +32,26 @@ TableCell::TableCell(const char *value, int charNum) : type(TableMeta::CHAR), ch
 	strcpy(cp, value);
 }
 
+TableCell::~TableCell() {
+	switch (type) {
+		case TableMeta::INT:
+			delete ip;
+			break;
+		case TableMeta::FLOAT:
+			delete fp;
+			break;
+		case TableMeta::CHAR:
+			delete[] cp;
+			break;
+	}
+}
+
 int TableCell::Int() {
 	return (int)*ip;
+}
+
+uint32_t TableCell::UInt32_t() {
+	return (uint32_t)*ip;
 }
 
 float TableCell::Float() {
@@ -44,6 +62,13 @@ char *TableCell::Char() {
 	return cp;
 }
 
+TableRow::~TableRow() {
+	TableCell * TempTableCell;
+	while (TempTableCell = head, TempTableCell != end) {
+		head = head->Next;
+		delete TempTableCell;
+	}
+}
 
 TableRow::TableRow() : IsEmpty(0), end(NULL), tail(end), head(end) { }
 

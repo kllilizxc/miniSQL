@@ -15,8 +15,10 @@ public:
 	TableCell(const int value);
 	TableCell(const float value);
 	TableCell(const char *value, int charNum);
+	~TableCell();
 
 	int Int();
+	uint32_t UInt32_t();
 	float Float();
 	char *Char();
 };
@@ -32,4 +34,5 @@ public:
 	TableRow* DeepCopySelf();
 	TableCell* at(int index);
 	TableRow *Filter(vector<int> attrIndex);
+	~TableRow();
 };

@@ -24,9 +24,9 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 	uint32_t TempRecOffset;
 	uint32_t TempInnerOffset;
 	TableRow *TempTableRow;
-	TableCell **TempTableCell;
+	TableCell *TempTableCell;
 	streampos size;
-	char *memblock;
+	char *memblock = NULL;
 	ifstream TableFile(fileName.data(), ios::in | ios::binary | ios::ate);
 	if (TableFile.is_open()) {
 		size = TableFile.tellg();
@@ -70,7 +70,6 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 	TempRecOffset = BLOCK_HEAD_OFFSET;
 	for (uint32_t i = 0; i < RecCount; ++i) {
 		TempTableRow = new TableRow();
-		TempTableCell = &(TempTableRow->head);
 		if (memblock[TempRecOffset] == 1) {
 			TempTableRow->IsEmpty = 1;
 		}
@@ -81,24 +80,26 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 				iter != InnerOffsets.end();
 				++iter, ++it) {
 
-				*TempTableCell = new TableCell;
-				(*TempTableCell)->type = it->type;
+
 				switch (it->type) {
 				case TableMeta::INT:
-					(*TempTableCell)->ip = new uint32_t(CharToInt(memblock + TempRecOffset + *iter));
+					*TempTableCell = new TableCell((int)CharToInt(memblock + TempRecOffset + *iter));
 					break;
 				case TableMeta::FLOAT:
-					(*TempTableCell)->fp = new float(CharToFloat(memblock + TempRecOffset + *iter));
+					*TempTableCell = new TableCell(CharToFloat(memblock + TempRecOffset + *iter));
 					break;
 				case TableMeta::CHAR:
-					(*TempTableCell)->cp = new char[it->charNum];
-					memcpy((*TempTableCell)->cp, memblock + TempRecOffset + *iter, it->charNum);
-					(*TempTableCell)->charNum = it->charNum;
+					*TempTableCell = new TableCell;
+					//char 还是不太方便
+					TempTableCell->cp = new char[it->charNum];
+					memcpy(TempTableCell->cp, memblock + TempRecOffset + *iter, it->charNum);
+					TempTableCell->charNum = it->charNum;
 					break;
 				}
-				(*TempTableCell)->Next = TempTableRow->end;
-				TempTableRow->tail = (*TempTableCell);
-				TempTableCell = &((*TempTableCell)->Next);
+//				(*TempTableCell)->Next = TempTableRow->end;
+//				TempTableRow->tail = (*TempTableCell);
+//				TempTableCell = &((*TempTableCell)->Next);
+				TempTableRow->append(TempTableCell);
 			}
 		}
 		cout << (int)TempTableRow->IsEmpty << " | ";
@@ -164,29 +165,7 @@ STATUS BufferTable::Del(TableRow *tableRow) {
 BufferTable::~BufferTable() {//链表内存回收
 	if(IsDirty)
 		WriteBack();
-	TableCell* TempTableCell;
 	for (vector<TableRow*>::iterator iter = Table.begin(); iter != Table.end(); ++iter) {
-		while (TempTableCell = (*iter)->head, TempTableCell != (*iter)->end) {
-			(*iter)->head = (*iter)->head->Next;
-			//delete
-			switch (TempTableCell->type) {
-			case TableMeta::INT:
-				delete TempTableCell->ip;
-				break;
-			case TableMeta::FLOAT:
-				delete TempTableCell->fp;
-				break;
-			case TableMeta::CHAR:
-				delete[] TempTableCell->cp;
-				break;
-			}
-			//monkey patch
-			//if(TempTableCell->Next == (*iter)->end) {
-			//	delete TempTableCell;
-			//	break;
-			//}
-			delete TempTableCell;
-		}
 		delete *iter;
 	}
 };
@@ -234,13 +213,13 @@ STATUS BufferTable::WriteBack() {
 			for (TableCell *ptr = (*titer)->head; ptr != (*titer)->end && iit != InnerOffsets.end(); ptr = ptr->Next, ++iit) {
 				switch (ptr->type) {
 				case TableMeta::INT:
-					memcpy(memblock + TempRecOffset + *iit, IntToChar(*(ptr->ip)), getSizeof(TableMeta::INT));
+					memcpy(memblock + TempRecOffset + *iit, IntToChar(ptr->UInt32_t()), getSizeof(TableMeta::INT));
 					break;
 				case TableMeta::FLOAT:
-					memcpy(memblock + TempRecOffset + *iit, FloatToChar(*(ptr->fp)), getSizeof(TableMeta::FLOAT));
+					memcpy(memblock + TempRecOffset + *iit, FloatToChar(ptr->Float()), getSizeof(TableMeta::FLOAT));
 					break;
 				case TableMeta::CHAR:
-					memcpy(memblock + TempRecOffset + *iit, ptr->cp, ptr->charNum);
+					memcpy(memblock + TempRecOffset + *iit, ptr->Char(), ptr->charNum);
 					break;
 				default:
 					break;

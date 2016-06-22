@@ -321,6 +321,7 @@ ConditionNode *Interpreter::buildFactor() {
             throw error("= or > or < or >= or <= or !=", op.type);
     }
     ConditionNode *right = buildTerm();
+    if(!compareType(left->type, right->type)) throw error("condition type not match!");
     node->left = left;
     node->right = right;
     return node;
@@ -351,6 +352,14 @@ ConditionNode *Interpreter::buildConditionTree() {
         op = getNextToken();
     }
 }
+
+bool Interpreter::compareType(ConditionNode::conType a, ConditionNode::conType b) {
+    return (a == b) ||
+            (a == ConditionNode::INT && b == ConditionNode::FLOAT) ||
+            (a == ConditionNode::FLOAT && b == ConditionNode::INT);
+}
+
+
 
 
 

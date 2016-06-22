@@ -210,6 +210,7 @@ void Interpreter::select() {
     vector<TableRow *> rows;
     rows = RecordManager::GetRecords(*tableMeta, attrIndexes, con);
 
+    cout << "----------------------------------" << endl;
     for (int j = 0; j < rows.size(); ++j) {
         TableCell *cell = rows[j]->head;
         while (cell != NULL) {
@@ -229,6 +230,8 @@ void Interpreter::select() {
         }
         cout << endl;
     }
+    cout << "----------------------------------" << endl << endl;
+
     interpret();
 }
 
@@ -302,9 +305,6 @@ ConditionNode *Interpreter::buildTerm(TableMeta &table) {
     Token temp = getNextToken();
 
     switch (temp.type) {
-        case Token::LP: {
-            return new ConditionNode(ConditionNode::LP);
-        }
         case Token::ID: {
             Attr *attr = table.getAttrByName(temp.String());
             int index = table.attrMap[temp.String()];
@@ -324,9 +324,6 @@ ConditionNode *Interpreter::buildTerm(TableMeta &table) {
             getNextToken(Token::SQ);
             return node;
         }
-        case Token::NOT: {
-            return new ConditionNode(ConditionNode::NOT);
-        }
         default:
             throw error("( or attr or number or char", temp.type);
 
@@ -336,15 +333,6 @@ ConditionNode *Interpreter::buildTerm(TableMeta &table) {
 ConditionNode *Interpreter::buildFactor(TableMeta &table) {
     ConditionNode *left = buildTerm(table);
     ConditionNode *node;
-    if (left->type == ConditionNode::NOT) {
-        getNextToken(Token::LP);
-        node = new ConditionNode(ConditionNode::NOT);
-        node->left = buildConditionTree(table);
-        return node;
-    } else if (left->type == ConditionNode::LP) {
-        node = buildConditionTree(table);
-        return node;
-    }
     const Token op = getNextToken();
     switch (op.type) {
         case Token::EQ:
@@ -388,7 +376,6 @@ ConditionNode *Interpreter::buildConditionTree(TableMeta &table) {
                 node = new ConditionNode(ConditionNode::OR);
                 break;
             case Token::SEMI:
-            case Token::RP:
             case Token::EOI:
                 return left;
             default:

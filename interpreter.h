@@ -19,9 +19,9 @@ private:
     void select();
     void insertInto();
     void deleteFrom();
-    ConditionNode *buildConditionTree();
-    ConditionNode *buildFactor();
-    ConditionNode *buildTerm();
+    ConditionNode *buildConditionTree(TableMeta &table);
+    ConditionNode *buildFactor(TableMeta &table);
+    ConditionNode *buildTerm(TableMeta &table);
     bool compareType(ConditionNode::conType a, ConditionNode::conType b);
 public:
     Interpreter(char *instr = 0);

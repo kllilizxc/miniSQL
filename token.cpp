@@ -42,7 +42,7 @@ symbols Token::smb[] = {
 combinedSymbols Token::csmb[] = {
         {Token::AND, "&&"},
         {Token::OR,  "||"},
-        {Token::NEQ, "!="},
+        {Token::NEQ, "<>"},
         {Token::BET, ">="},
         {Token::LET, "<="}
 };

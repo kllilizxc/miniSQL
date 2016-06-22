@@ -23,7 +23,7 @@ void CatalogManager::addAttrToTableMeta(int tableId, string name, Token::Type ty
         case Token::INT:
             attrtype = TableMeta::INT;
             break;
-        case Token::DOUBLE:
+        case Token::FLOAT:
             attrtype = TableMeta::FLOAT;
             break;
         case Token::CHAR:

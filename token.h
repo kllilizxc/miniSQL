@@ -21,18 +21,18 @@ private:
 public:
     static const int SINGLE_KEY_KEYWORDS_NUM = 9;
     static const int DOUBLE_KEY_KEYWORDS_NUM = 5;
-    static const int SYMBOLS_NUM = 10;
+    static const int SYMBOLS_NUM = 11;
     static const int COMBINED_SYMBOLS_NUM = 5;
 
     enum Type {
         EMPTY, ID, ATTR, INTEGER, FLOATNUM, //变量 0
-        TABLE, INDEX, SELECT, DELETE, INSERT, FROM, WHERE, VALUES, ON, //命令关键词 3
-        LP, RP, LBP, RBP, COMMA, SEMI, SQ, //标点符号 12
-        EQ, NEQ, BT, LT, BET, LET, //比较符号 19
-        AND, OR, NOT, //逻辑符号 25
-        PRIMARY,UNIQUE, //表属性 28
-        INT, FLOAT, CHAR, //数据类型 30
-        EOI, ERROR //其他 33
+        TABLE, INDEX, SELECT, DELETE, INSERT, FROM, WHERE, VALUES, ON, //命令关键词 5
+        LP, RP, LBP, RBP, COMMA, SEMI, SQ, //标点符号 14
+        EQ, NEQ, BT, LT, BET, LET, //比较符号 21
+        AND, OR, NOT, //逻辑符号 27
+        PRIMARY,UNIQUE, //表属性 30
+        INT, FLOAT, CHAR, //数据类型 32
+        EOI, ERROR //其他 35
     };
 
     static singleKeyKeywords skk[];

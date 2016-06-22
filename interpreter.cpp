@@ -72,7 +72,7 @@ void Interpreter::creatTable() {
             const Token attrType = getNextToken();
             switch (attrType.type) {
                 case Token::INT:
-                case Token::DOUBLE:
+                case Token::FLOAT:
                     catalogManager->addAttrToTableMeta(tableId, attrName.String(), attrType.type);
                     break;
                 case Token::CHAR: {
@@ -144,15 +144,8 @@ void Interpreter::createIndex() {
 
 const Token Interpreter::getNextToken(Token::Type type) {
     Token result = lexer->getNextToken();
-    if(type != Token::EMPTY && type != result.type) throw error(type, result.type);
+    if (type != Token::EMPTY && type != result.type) throw error(type, result.type);
     return result;
-}
-
-bool Interpreter::elementInVector(vector<string> &v, string &e) {
-    for (int i = 0; i < v.size(); ++i) {
-        if (e == v[i]) return true;
-    }
-    return false;
 }
 
 void Interpreter::select() {
@@ -215,11 +208,11 @@ void Interpreter::insertInto() {
     while (!exit) {
         temp = getNextToken();
         switch (temp.type) {
-            case Token::INT:
+            case Token::INTEGER:
                 cout << temp.Int();
                 tableRow.append(new TableCell(temp.Int()));
                 break;
-            case Token::DOUBLE:
+            case Token::FLOATNUM:
                 cout << temp.Float();
                 tableRow.append(new TableCell(temp.Float()));
                 break;
@@ -264,13 +257,11 @@ void Interpreter::deleteFrom() {
 }
 
 ConditionNode *Interpreter::buildTerm() {
-    const Token temp = getNextToken();
+    Token temp = getNextToken();
 
-    switch(temp.type) {
+    switch (temp.type) {
         case Token::LP: {
-            ConditionNode *node = buildConditionTree();
-            getNextToken(Token::RP);
-            return node;
+            return new ConditionNode(ConditionNode::LP);
         }
         case Token::ID: {
             return new ConditionNode(temp.String(), ConditionNode::ATTR);
@@ -282,29 +273,51 @@ ConditionNode *Interpreter::buildTerm() {
             return new ConditionNode(temp.Float());
         }
         case Token::SQ: {
-            getNextToken(Token::ID);
+            temp = getNextToken(Token::ID);
             ConditionNode *node = new ConditionNode(temp.String());
             getNextToken(Token::SQ);
+            return node;
         }
         case Token::NOT: {
-            //TODO
+            return new ConditionNode(ConditionNode::NOT);
         }
-        default: throw error("( or attr or number or char", temp.type);
+        default:
+            throw error("( or attr or number or char", temp.type);
 
     }
 }
 
 ConditionNode *Interpreter::buildFactor() {
     ConditionNode *left = buildTerm();
-    const Token op = getNextToken();
     ConditionNode *node;
+    if (left->type == ConditionNode::NOT) {
+        getNextToken(Token::LP);
+        node = new ConditionNode(ConditionNode::NOT);
+        node->left = buildConditionTree();
+        return node;
+    } else if (left->type == ConditionNode::LP) {
+        node = buildConditionTree();
+        return node;
+    }
+    const Token op = getNextToken();
     switch (op.type) {
-        case Token::EQ: node = new ConditionNode(ConditionNode::EQ); break;
-        case Token::BT: node = new ConditionNode(ConditionNode::GT); break;
-        case Token::LT: node = new ConditionNode(ConditionNode::LT); break;
-        case Token::BET: node = new ConditionNode(ConditionNode::GEQ); break;
-        case Token::LET: node = new ConditionNode(ConditionNode::LEQ); break;
-        default: throw error("= or > or < or >= or <=", op.type);
+        case Token::EQ:
+            node = new ConditionNode(ConditionNode::EQ);
+            break;
+        case Token::BT:
+            node = new ConditionNode(ConditionNode::GT);
+            break;
+        case Token::LT:
+            node = new ConditionNode(ConditionNode::LT);
+            break;
+        case Token::BET:
+            node = new ConditionNode(ConditionNode::GEQ);
+            break;
+        case Token::LET:
+            node = new ConditionNode(ConditionNode::LEQ);
+            break;
+        default:
+            throw error("= or > or < or >= or <=", op.type);
     }
     ConditionNode *right = buildTerm();
     node->left = left;
@@ -314,17 +327,28 @@ ConditionNode *Interpreter::buildFactor() {
 
 ConditionNode *Interpreter::buildConditionTree() {
     ConditionNode *left = buildFactor();
-    const Token op = getNextToken();
-    ConditionNode *node;
-    switch (op.type) {
-        case Token::AND: node = new ConditionNode(ConditionNode::AND); break;
-        case Token::OR: node = new ConditionNode(ConditionNode::OR); break;
-        default: throw error("&& or ||", op.type);
+    ConditionNode *node = NULL;
+    Token op = getNextToken();
+    while (1) {
+        switch (op.type) {
+            case Token::AND:
+                node = new ConditionNode(ConditionNode::AND);
+                break;
+            case Token::OR:
+                node = new ConditionNode(ConditionNode::OR);
+                break;
+            case Token::RP:
+            case Token::EOI:
+                return left;
+            default:
+                throw error("&& or ||", op.type);
+        }
+        ConditionNode *right = buildFactor();
+        node->left = left;
+        node->right = right;
+        left = node;
+        op = getNextToken();
     }
-    ConditionNode *right = buildFactor();
-    node->left = left;
-    node->right = right;
-    return node;
 }
 
 

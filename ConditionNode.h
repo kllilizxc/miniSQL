@@ -16,7 +16,8 @@ public:
     enum conType {
         ATTR, INT, FLOAT, CHAR,
         EQ, GT, GEQ, LT, LEQ,
-        AND, OR, NOT
+        AND, OR, NOT,
+        LP, RP
     };
     ConditionNode *left;
     ConditionNode *right;

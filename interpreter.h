@@ -14,7 +14,6 @@ private:
     Lexer *lexer;
     CatalogManager *catalogManager;
     inline const Token getNextToken(Token::Type type = Token::EMPTY);
-    static bool elementInVector(vector<string> &v, string &e);
     void creatTable();
     void createIndex();
     void select();

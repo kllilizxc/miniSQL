@@ -121,7 +121,8 @@ void Interpreter::createTable() {
     }
     TableMeta *table = catalogManager->findTableMetaFromId(tableId);
     RecordManager::CreateTable(*table);
-    cout << endl;
+
+    if(getNextToken().type == Token::SEMI) interpret();
 }
 
 void Interpreter::createIndex() {
@@ -140,6 +141,7 @@ void Interpreter::createIndex() {
         else if (temp.type == Token::COMMA) continue;
         else throw error("column or )", temp.type);
     }
+    if(getNextToken().type == Token::SEMI) interpret();
 
     cout << "create index " << indexName.String() << " on " << tableName.String() << " on columns: ";
     for (int i = 0; i < columns.size(); ++i) cout << columns[i] << " ";
@@ -208,6 +210,7 @@ void Interpreter::select() {
         }
         cout << endl;
     }
+    if(getNextToken().type == Token::SEMI) interpret();
 }
 
 void Interpreter::insertInto() {
@@ -252,6 +255,7 @@ void Interpreter::insertInto() {
         }
     }
     RecordManager::InsertRecords(*tableMeta, &tableRow);
+    if(getNextToken().type == Token::SEMI) interpret();
 
 }
 
@@ -271,6 +275,8 @@ void Interpreter::deleteFrom() {
     else if (temp.type == Token::EOI);
     else throw error("where", temp.type);
     RecordManager::DeleteRecords(*tableMeta, con);
+    if(getNextToken().type == Token::SEMI) interpret();
+
 }
 
 ConditionNode *Interpreter::buildTerm(TableMeta &table) {

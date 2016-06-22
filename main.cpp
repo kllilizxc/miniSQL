@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "interpreter.h"
 #include "buffermanager.h"
 
@@ -37,10 +38,21 @@ int main() {
     Interpreter *interpreter = new Interpreter;
     while (1) {
         cout << "miniSQL> ";
-        cin.getline(instr, 100);
-        if(!strcmp(instr, "end")) break;
-        interpreter->reset(instr);
-        interpreter->interpret();
+        char action = cin.peek();
+        if (action == 'x') {
+            cin.ignore(1);
+            char inputFile[10];
+            cin >> inputFile;
+            ifstream in;
+            in.open(inputFile);
+            in.close();
+        }
+        else if (!strcmp(instr, "e")) break;
+        else {
+            cin.getline(instr, 100);
+            interpreter->reset(instr);
+            interpreter->interpret();
+        }
     }
     BufferTable::WriteBackAll();
 }

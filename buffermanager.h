@@ -4,8 +4,6 @@
 #include "tablemeta.h"
 #include "table.h"
 #include "typeconvert.h"
-#define BLOCK_SIZE_BYTE 4194304
-#define BLOCK_HEAD_OFFSET 72
 
 enum STATUS {
 	SUCCESS, ERROR, FULL, NOT_EXIST, EXIST

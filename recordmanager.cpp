@@ -3,11 +3,11 @@
 #include <string>
 #include <vector>
 #include <cstring>
-#include "recordmanager.h"
 #include "buffermanager.h"
 #include "typeconvert.h"
 #include "conditionnode.h"
 #include "comparevalue.h"
+#include "recordmanager.h"
 
 const string DB_FILE_NAME = "test_db.dbi";
 const string DB_NAME = "test_db";

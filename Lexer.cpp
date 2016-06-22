@@ -15,6 +15,8 @@ Lexer::Lexer(const char *instr){
 }
 
 void Lexer::advance() {
+    if(!instr)
+        return;
     int length = strlen(instr);
 
     crtChar = (index >= length) ? (char) END : instr[index];
@@ -170,6 +172,8 @@ char *Lexer::getCombinedSymbol() {
 }
 
 void Lexer::reset(const char *instr) {
+    if(!instr)
+        return;
     index = 0;
     if (instr) {
         this->instr = new char[strlen(instr) + 1];

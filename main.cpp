@@ -37,7 +37,8 @@ int main() {
     Interpreter *interpreter = new Interpreter;
     while (1) {
         cout << "miniSQL> ";
-        cin >> instr;
+        cin.getline(instr, 100);
+        if(!strcmp(instr, "end")) break;
         interpreter->reset(instr);
         interpreter->interpret();
     }

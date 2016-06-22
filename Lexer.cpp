@@ -10,17 +10,12 @@
 using namespace std;
 
 
-Lexer::Lexer(const char *instr) : index(0) {
-    if (instr) {
-        this->instr = new char[strlen(instr) + 1];
-        strcpy(this->instr, instr);
-    }
-    advance();
+Lexer::Lexer(const char *instr){
+    reset(instr);
 }
 
 void Lexer::advance() {
     int length = strlen(instr);
-    nxtChar = (index + 1 >= length) ? (char) END : instr[index + 1];
 
     crtChar = (index >= length) ? (char) END : instr[index];
 
@@ -31,7 +26,6 @@ void Lexer::skipWhiteSpace() {
     while (isspace(crtChar)) {
         crtChar = instr[index];
         if(index < strlen(instr)) index++;
-        nxtChar = instr[index];
     }
 }
 
@@ -174,6 +168,17 @@ char *Lexer::getCombinedSymbol() {
     symbol[i] = '\0';
     return symbol;
 }
+
+void Lexer::reset(const char *instr) {
+    index = 0;
+    if (instr) {
+        this->instr = new char[strlen(instr) + 1];
+        strcpy(this->instr, instr);
+    }
+    advance();
+}
+
+
 
 
 

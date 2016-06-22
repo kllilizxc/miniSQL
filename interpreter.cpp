@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Interpreter::Interpreter(char *instr) : instr(instr) {
+Interpreter::Interpreter(const char *instr) : instr(instr) {
     catalogManager = new CatalogManager;
     lexer = new Lexer(this->instr);
 }
@@ -192,6 +192,19 @@ void Interpreter::select() {
     vector<TableRow *> rows;
     rows = RecordManager::GetRecords(*tableMeta, attrIndexes, con);
 
+    for (int j = 0; j < rows.size(); ++j) {
+        TableCell *cell = rows[j]->head->Next;
+        while (cell != NULL) {
+            switch (cell->type) {
+                case TableMeta::INT: cout << cell->Int();
+                case TableMeta::FLOAT: cout << cell->Float();
+                case TableMeta::CHAR: cout << cell->Char();
+            }
+            cout << " | ";
+            cell = cell->Next;
+        }
+        cout << endl;
+    }
 }
 
 void Interpreter::insertInto() {
@@ -374,6 +387,12 @@ bool Interpreter::compareType(ConditionNode::conType a, ConditionNode::conType b
             (typeA == ConditionNode::INT && typeB == ConditionNode::FLOAT) ||
             (typeA == ConditionNode::FLOAT && typeB == ConditionNode::INT);
 }
+
+void Interpreter::reset(const char *instr) {
+    lexer->reset(instr);
+}
+
+
 
 
 

@@ -101,6 +101,7 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 				TempTableCell = &((*TempTableCell)->Next);
 			}
 		}
+		cout << (int)TempTableRow->IsEmpty << " | ";
 		for (TableCell *ptr = TempTableRow->head; ptr != TempTableRow->end; ptr = ptr->Next) {
 			switch (ptr->type) {
 				case TableMeta::INT:
@@ -154,6 +155,7 @@ STATUS BufferTable::Del(uint32_t recOffset) {
 };
 
 STATUS BufferTable::Del(TableRow *tableRow) {
+	cout << "delete one!" << endl;
 	tableRow->IsEmpty = 1;
 	IsDirty = true;
 	return SUCCESS;
@@ -190,8 +192,8 @@ BufferTable::~BufferTable() {//链表内存回收
 };
 
 STATUS BufferTable::WriteBack() {
-	const char empty[] = "1";
-	const char full[] = "0";
+	const char empty[1] = {1};
+	const char full[1] = {0};
 	const int FileSize = BLOCK_HEAD_OFFSET + RecCount * RecLength;
 
 	char *memblock = new char[FileSize];
@@ -204,8 +206,9 @@ STATUS BufferTable::WriteBack() {
 	//write reccord
 	TempRecOffset = BLOCK_HEAD_OFFSET;
 	for (vector<TableRow*>::iterator titer = Table.begin(); titer != Table.end(); ++titer) {
-		if ((*titer)->IsEmpty) {
+		if ((*titer)->IsEmpty == 1) {
 			//若为空
+			cout << "is empty" << endl;
 			memcpy(memblock + TempRecOffset, empty, 1);
 			vector<uint32_t>::iterator iit = InnerOffsets.begin();
 			for (vector<Attr>::iterator ait = attrs.begin(); ait != attrs.end() && iit != InnerOffsets.end(); ++ait, ++iit) {
@@ -225,6 +228,7 @@ STATUS BufferTable::WriteBack() {
 			}
 		}
 		else {
+			cout << "is full" << endl;
 			memcpy(memblock + TempRecOffset, full, 1);
 			vector<uint32_t>::iterator iit = InnerOffsets.begin();
 			for (TableCell *ptr = (*titer)->head; ptr != (*titer)->end && iit != InnerOffsets.end(); ptr = ptr->Next, ++iit) {

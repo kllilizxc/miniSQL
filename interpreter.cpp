@@ -195,15 +195,12 @@ void Interpreter::select() {
     rows = RecordManager::GetRecords(*tableMeta, attrIndexes, con);
 
     for (int j = 0; j < rows.size(); ++j) {
-        TableCell *cell = rows[j]->head->Next;
+        TableCell *cell = rows[j]->head;
         while (cell != NULL) {
             switch (cell->type) {
-                case TableMeta::INT:
-                    cout << cell->Int();
-                case TableMeta::FLOAT:
-                    cout << cell->Float();
-                case TableMeta::CHAR:
-                    cout << cell->Char();
+                case TableMeta::INT: cout << cell->Int(); break;
+                case TableMeta::FLOAT: cout << cell->Float(); break;
+                case TableMeta::CHAR: cout << cell->Char(); break;
             }
             cout << " | ";
             cell = cell->Next;
@@ -345,6 +342,7 @@ ConditionNode *Interpreter::buildFactor(TableMeta &table) {
             break;
         case Token::NEQ:
             node = new ConditionNode(ConditionNode::NEQ);
+            break;
         default:
             throw error("= or > or < or >= or <= or !=", op.type);
     }

@@ -11,6 +11,7 @@ public:
 	int charNum;
 	TableCell *Next;
 	TableCell();
+	TableCell(TableCell *tableCell);
 	TableCell(const int value);
 	TableCell(const float value);
 	TableCell(const char *value, int charNum);
@@ -30,4 +31,5 @@ public:
 	void append(TableCell *cell);
 	TableRow* DeepCopySelf();
 	TableCell* at(int index);
+	TableRow *Filter(vector<int> attrIndex);
 };

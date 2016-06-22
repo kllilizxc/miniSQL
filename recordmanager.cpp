@@ -77,7 +77,7 @@ char *DbInfo::ConvertToMemblock(size_t *retPptr) {
 }
 
 STATUS CreateDbInfo(string DB_NAME, string DB_FILE_Name) {
-	cout << "open failed, create one" << DB_FILE_Name << endl;
+	//cout << "open failed, create one" << DB_FILE_Name << endl;
 
 	char memblock[36];
 	memcpy(memblock, StringToChar(DB_NAME, 32), 32);
@@ -89,11 +89,11 @@ STATUS CreateDbInfo(string DB_NAME, string DB_FILE_Name) {
 		file.write(memblock, 36);
 		file.close();
 
-		cout << DB_FILE_Name << " : create complete." << endl;
+		//cout << DB_FILE_Name << " : create complete." << endl;
 		return SUCCESS;
 	}
 	else {
-		cout << DB_FILE_Name << " : Unable to open file" << endl;
+		//cout << DB_FILE_Name << " : Unable to open file" << endl;
 		return ERROR;
 	}
 }
@@ -106,10 +106,10 @@ STATUS CreateTableFile(string fileName, string nextFileName, string prevFileName
 		TableFile.write(ConstructTableFileHead(nextFileName, prevFileName, recCount, headRecOffset), 72);
 		TableFile.close();
 
-		cout << fileName << " : create complete." << endl;
+		//cout << fileName << " : create complete." << endl;
 	}
 	else {
-		cout << fileName << " : Unable to open file" << endl;
+		//cout << fileName << " : Unable to open file" << endl;
 		return ERROR;
 	}
 }
@@ -122,7 +122,7 @@ STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 	char *memblock;
 	ifstream DbInfoFile(DB_FILE_NAME.data(), ios::in | ios::binary | ios::ate);
 	if (!DbInfoFile.is_open()) {
-		cout << "open failed. try to create." << endl;
+		//cout << "open failed. try to create." << endl;
 		if(CreateDbInfo(DB_NAME, DB_FILE_NAME) == ERROR)
 			return ERROR;
 		DbInfoFile.open(DB_FILE_NAME.data(), ios::in | ios::binary | ios::ate);
@@ -134,10 +134,10 @@ STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 		DbInfoFile.seekg(0, ios::beg);
 		DbInfoFile.read(memblock, size);
 		DbInfoFile.close();
-		cout << "opened dbinfo" << DB_FILE_NAME << endl;
+		//cout << "opened dbinfo" << DB_FILE_NAME << endl;
 	}
 	else {
-		cout << "open failed due to unknow." << endl;
+		//cout << "open failed due to unknow." << endl;
 		return ERROR;
 	}
 	//process
@@ -147,7 +147,7 @@ STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 	DbInfoRec TempDbInfoRec;
 	char IdBuff[9];
 	if (Dbinfo.DbInfoRecs.find(tableMeta.id) != Dbinfo.DbInfoRecs.end()) {
-		cout << "this table exist" << endl;
+		//cout << "this table exist" << endl;
 		return EXIST;
 	}
 	TempDbInfoRec.id = tableMeta.id;
@@ -168,11 +168,11 @@ STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 		delete pptrs;
 		delete[] memblock;
 
-		cout << "the entire file content is written to disk." << endl;
+		//cout << "the entire file content is written to disk." << endl;
 		return SUCCESS;
 	}
 	else { 
-		cout << "Unable to open file" << endl;
+		//cout << "Unable to open file" << endl;
 		return ERROR;
 	}
 }
@@ -208,10 +208,10 @@ int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
 		DbInfoFile.seekg(0, ios::beg);
 		DbInfoFile.read(memblock, size);
 		DbInfoFile.close();
-		cout << "opened dbinfo" << DB_FILE_NAME << endl;
+		//cout << "opened dbinfo" << DB_FILE_NAME << endl;
 	}
 	else {
-		cout << "open failed due to unknow." << endl;
+		//cout << "open failed due to unknow." << endl;
 		return ERROR;
 	}
 	DbInfo Dbinfo(memblock);
@@ -252,7 +252,7 @@ int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
 }
 
 bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
-	cout << "now : " << condition->type << endl;
+	//cout << "now : " << condition->type << endl;
 	if (condition->left->type != ConditionNode::ATTR_INT
 		&& condition->left->type != ConditionNode::ATTR_FLOAT
 		&& condition->left->type != ConditionNode::ATTR_CHAR
@@ -264,9 +264,9 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 			return HandleCondtion(tableRow, condition->left);
 		}
 		bool LeftResult = false, RightResult = false;
-		cout << "left : " << condition->left->type << endl;
+		//cout << "left : " << condition->left->type << endl;
 		LeftResult = HandleCondtion(tableRow, condition->left);
-		cout << "right : " << condition->right->type << endl;
+		//cout << "right : " << condition->right->type << endl;
 		RightResult = HandleCondtion(tableRow, condition->right);
 		switch (condition->type) {
 		case ConditionNode::AND:
@@ -292,7 +292,7 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 		float RightF;
 		string RightS;
 		//转换左边
-		cout << "convertleft" << endl;
+		//cout << "convertleft" << endl;
 		switch (condition->left->type)
 		{
 		case ConditionNode::ATTR_INT:
@@ -329,7 +329,7 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 			break;
 		}
 		//右边
-		cout << "convertright" << endl;
+		//cout << "convertright" << endl;
 		switch (condition->right->type)
 		{
 		case ConditionNode::ATTR_INT:
@@ -351,7 +351,7 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 			}
 			break;
 		case ConditionNode::INT:
-			cout << "attr node" << endl;
+			//cout << "attr node" << endl;
 			RightI = condition->right->getIntValue();
 			return CompareValue(LeftI, RightI, condition->type);
 			break;
@@ -383,10 +383,10 @@ vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> att
 		DbInfoFile.seekg(0, ios::beg);
 		DbInfoFile.read(memblock, size);
 		DbInfoFile.close();
-		cout << "opened dbinfo" << DB_FILE_NAME << endl;
+		//cout << "opened dbinfo" << DB_FILE_NAME << endl;
 	}
 	else {
-		cout << "open failed due to unknow." << endl;
+		//cout << "open failed due to unknow." << endl;
 		return Finale;
 	}
 	DbInfo Dbinfo(memblock);
@@ -400,12 +400,12 @@ vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> att
 	BufferTable *TempTable;
 	string TempTableFileName;
 	while (strlen(TableFileName.data())) {
-		cout << TableFileName << endl;
+		//cout << TableFileName << endl;
 		TempTable = BufferTable::ReadTable(TableFileName, tableMeta);
 		for (vector<TableRow*>::iterator iter = TempTable->Table.begin(); iter != TempTable->Table.end(); ++iter) {
 			if (!(*iter)->IsEmpty && (!condition || HandleCondtion(*iter, condition))) {
 				Finale.push_back((*iter)->Filter(attrIndex));
-				cout << "find one !" << endl;
+				//cout << "find one !" << endl;
 			}
 		}
 		TableFileName = TempTable->NextFileName;
@@ -426,10 +426,10 @@ int RecordManager::DeleteRecords(TableMeta tableMeta, ConditionNode *condition) 
 		DbInfoFile.seekg(0, ios::beg);
 		DbInfoFile.read(memblock, size);
 		DbInfoFile.close();
-		cout << "opened dbinfo" << DB_FILE_NAME << endl;
+		//cout << "opened dbinfo" << DB_FILE_NAME << endl;
 	}
 	else {
-		cout << "open failed due to unknow." << endl;
+		//cout << "open failed due to unknow." << endl;
 		return 0;
 	}
 	DbInfo Dbinfo(memblock);

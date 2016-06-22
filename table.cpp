@@ -114,7 +114,7 @@ TableCell *TableRow::at(int index) {
 TableRow *TableRow::Filter(vector<int> attrIndex) {
 	TableRow *TempTableRow = new TableRow();
 	for(vector<int>::iterator iter = attrIndex.begin(); iter != attrIndex.end(); ++iter) {
-		std::cout << *iter << std::endl;
+		//std::cout << *iter << std::endl;
 		TempTableRow->append(new TableCell(at(*iter)));
 	}
 	return TempTableRow;

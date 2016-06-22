@@ -10,7 +10,7 @@ using namespace std;
 
 class Interpreter {
 private:
-    char *instr;
+    const char *instr;
     Lexer *lexer;
     CatalogManager *catalogManager;
     inline const Token getNextToken(Token::Type type = Token::EMPTY);
@@ -24,7 +24,8 @@ private:
     ConditionNode *buildTerm(TableMeta &table);
     bool compareType(ConditionNode::conType a, ConditionNode::conType b);
 public:
-    Interpreter(char *instr = 0);
+    Interpreter(const char *instr = 0);
+    void reset(const char *instr);
     ~Interpreter();
     void interpret();
 };

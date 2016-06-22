@@ -15,7 +15,7 @@ private:
     char *instr;
     int index;
     char crtChar;
-    char nxtChar;
+
     void skipWhiteSpace();
     float getNumber(bool *isFloat);
     char *getKeyword();
@@ -26,6 +26,7 @@ private:
     void advance();
 public:
     Lexer(const char *instr = 0);
+    void reset(const char *instr = 0);
     const Token getNextToken();
 
 };

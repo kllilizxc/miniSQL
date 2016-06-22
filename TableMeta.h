@@ -19,7 +19,7 @@ class TableMeta {
 public:
     map<string, int> attrMap;
     enum ATTRTYPE {
-        INT, CHAR, DOUBLE
+        INT, CHAR, FLOAT
     };
     int id;
     vector<Attr> attrs;

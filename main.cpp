@@ -20,7 +20,7 @@ int main() {
 //            case Token::INT:
 //                cout << " : " << t.Int();
 //                break;
-//            case Token::DOUBLE:
+//            case Token::FLOAT:
 //                cout << " : " << t.Double();
 //                break;
 //            case Token::ID:

@@ -44,7 +44,7 @@ const Token Lexer::getNextToken() {
         //数字
         if (isdigit(crtChar)) {
             bool isFloat;
-            double num = getNumber(&isFloat);
+            float num = getNumber(&isFloat);
             if(isFloat) return Token(num);
             else return Token(static_cast<int>(num));
         }
@@ -98,7 +98,7 @@ const Token Lexer::getNextToken() {
     }
 }
 
-double Lexer::getNumber(bool *isFloat) {
+float Lexer::getNumber(bool *isFloat) {
     skipWhiteSpace();
     *isFloat = false;
     char *num = new char[20]; //TODO 可以写成可变
@@ -112,8 +112,8 @@ double Lexer::getNumber(bool *isFloat) {
         throw error("a digit", "an alpha");
     } else {
         num[i] = '\0';
-        if(*isFloat) return atof(num);
-        else return atoi(num);
+        if(*isFloat) return static_cast<float>(atof(num));
+        else return static_cast<float >(atoi(num));
     }
 
 }

@@ -220,8 +220,8 @@ void Interpreter::insertInto() {
                 tableRow.append(new TableCell(temp.Int()));
                 break;
             case Token::DOUBLE:
-                cout << temp.Double();
-                tableRow.append(new TableCell(temp.Double()));
+                cout << temp.Float();
+                tableRow.append(new TableCell(temp.Float()));
                 break;
             case Token::SQ: {
                 const Token temp2 = getNextToken();
@@ -275,14 +275,19 @@ ConditionNode *Interpreter::buildTerm() {
         case Token::ID: {
             return new ConditionNode(temp.String(), ConditionNode::ATTR);
         }
-        case Token::INT: {
+        case Token::INTEGER: {
             return new ConditionNode(temp.Int());
         }
-        case Token::DOUBLE: {
-            return new ConditionNode(temp.Double());
+        case Token::FLOATNUM: {
+            return new ConditionNode(temp.Float());
         }
-        case Token::CHAR: {
-            return new ConditionNode(temp.String());
+        case Token::SQ: {
+            getNextToken(Token::ID);
+            ConditionNode *node = new ConditionNode(temp.String());
+            getNextToken(Token::SQ);
+        }
+        case Token::NOT: {
+            //TODO
         }
         default: throw error("( or attr or number or char", temp.type);
 

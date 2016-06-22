@@ -25,14 +25,14 @@ public:
     static const int COMBINED_SYMBOLS_NUM = 5;
 
     enum Type {
-        EMPTY, ID, ATTR, //变量 0
+        EMPTY, ID, ATTR, INTEGER, FLOATNUM, //变量 0
         TABLE, INDEX, SELECT, DELETE, INSERT, FROM, WHERE, VALUES, ON, //命令关键词 3
         LP, RP, LBP, RBP, COMMA, SEMI, SQ, //标点符号 12
         EQ, NEQ, BT, LT, BET, LET, //比较符号 19
-        AND, OR, //逻辑符号 25
-        PRIMARY,UNIQUE, //表属性 27
-        INT, DOUBLE, CHAR, //数据类型 29
-        EOI, ERROR //其他 32
+        AND, OR, NOT, //逻辑符号 25
+        PRIMARY,UNIQUE, //表属性 28
+        INT, FLOAT, CHAR, //数据类型 30
+        EOI, ERROR //其他 33
     };
 
     static singleKeyKeywords skk[];
@@ -49,13 +49,13 @@ public:
 
     Token(int value);
 
-    Token(double value);
+    Token(float value);
 
     Token(string value, Type type = Token::CHAR);
 
     int Int() const;
 
-    double Double() const;
+    float Float() const;
 
     string String() const;
 };

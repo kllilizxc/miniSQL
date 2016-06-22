@@ -21,7 +21,7 @@ int main() {
 //                cout << " : " << t.Int();
 //                break;
 //            case Token::DOUBLE:
-//                cout << " : " << t.Double();
+//                cout << " : " << t.Float();
 //                break;
 //            case Token::ID:
 //                cout << " : " << t.String();

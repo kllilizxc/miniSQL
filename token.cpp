@@ -10,18 +10,18 @@ struct singleKeyKeywords Token::skk[] = {
         {Token::FROM,   "from"},
         {Token::WHERE,  "where"},
         {Token::INT,    "int"},
-        {Token::DOUBLE, "float"},
+        {Token::FLOAT, "float"},
         {Token::CHAR,   "char"},
         {Token::VALUES, "values"},
         {Token::ON,     "on"}
 };
 
 doubleKeyKeywords Token::dkk[] = {
-        {Token::TABLE,   "create",     "table"},
-        {Token::INDEX,   "create",     "index"},
-        {Token::INSERT,  "insert", "into"},
-        {Token::DELETE,  "delete",     "from"},
-        {Token::PRIMARY, "primary",    "key"}
+        {Token::TABLE,   "create",  "table"},
+        {Token::INDEX,   "create",  "index"},
+        {Token::INSERT,  "insert",  "into"},
+        {Token::DELETE,  "delete",  "from"},
+        {Token::PRIMARY, "primary", "key"}
 };
 
 symbols Token::smb[] = {
@@ -34,7 +34,8 @@ symbols Token::smb[] = {
         {Token::EQ,    '='},
         {Token::BT,    '>'},
         {Token::LT,    '<'},
-        {Token::SQ,    '\''}
+        {Token::SQ,    '\''},
+        {Token::NOT,   '!'}
 };
 
 combinedSymbols Token::csmb[] = {
@@ -47,9 +48,9 @@ combinedSymbols Token::csmb[] = {
 
 Token::Token(Type type) : type(type) { }
 
-Token::Token(int value) : type(INT), value(new int(value)) { }
+Token::Token(int value) : type(INTEGER), value(new int(value)) { }
 
-Token::Token(double value) : type(DOUBLE), value(new double(value)) { }
+Token::Token(float value) : type(FLOATNUM), value(new float(value)) { }
 
 Token::Token(string value, Type type) : type(type), value(new string(value)) { }
 
@@ -57,8 +58,8 @@ int Token::Int() const {
     return *((int *) value);
 }
 
-double Token::Double() const {
-    return *((double *) value);
+float Token::Float() const {
+    return *((float *) value);
 }
 
 string Token::String() const {

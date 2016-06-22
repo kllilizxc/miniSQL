@@ -17,7 +17,7 @@ private:
     char crtChar;
     char nxtChar;
     void skipWhiteSpace();
-    double getNumber(bool *isFloat);
+    float getNumber(bool *isFloat);
     char *getKeyword();
     char *peekKeyword();
     char *peekCombinedSymbol();

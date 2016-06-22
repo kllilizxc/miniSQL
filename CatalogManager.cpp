@@ -24,13 +24,13 @@ void CatalogManager::addAttrToTableMeta(int tableId, string name, Token::Type ty
             attrtype = TableMeta::INT;
             break;
         case Token::DOUBLE:
-            attrtype = TableMeta::DOUBLE;
+            attrtype = TableMeta::FLOAT;
             break;
         case Token::CHAR:
             attrtype = TableMeta::CHAR;
             break;
         default:
-            throw error("INT or DOUBLE or CHAR", type);
+            throw error("INT or FLOAT or CHAR", type);
     }
 
     tableMeta->addAttr(name, attrtype, 0, charNum);

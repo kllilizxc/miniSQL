@@ -1,38 +1,32 @@
-//
-// Created by kllilizxc on 2016/6/21.
-//
-
-#ifndef MINISQL_TABLE_H
-#define MINISQL_TABLE_H
-
-#include "TableMeta.h"
+#pragma once
+#include "tablemeta.h"
 class TableCell {
-private:
-    union {
-        uint32_t *ip;
-        char *cp;
-        double *dp;
-    };
 public:
-    TableMeta::ATTRTYPE type;
-    int charNum;
-    TableCell *next;
-    TableCell(const int value);
-    TableCell(const double value);
-    TableCell(const char *value, int charNum);
+	union {
+		uint32_t *ip;
+		char *cp;
+		float *fp;
+	};
+	TableMeta::ATTRTYPE type;
+	int charNum;
+	TableCell *Next;
+	TableCell();
+	TableCell(const int value);
+	TableCell(const float value);
+	TableCell(const char *value, int charNum);
 
-    int Int();
-    double Double();
-    char *Char();
+	int Int();
+	float Float();
+	char *Char();
 };
 
 class TableRow {
 public:
-    char isEmpty;
-    TableCell *head;
-    TableCell *tail;
-    TableRow();
-    void append(TableCell *cell);
+	char IsEmpty;
+	TableCell *head;
+	TableCell *tail;
+	TableRow();
+	void append(TableCell *cell);
+	TableRow* DeepCopySelf();
+	TableCell* at(int index);
 };
-
-#endif //MINISQL_TABLE_H

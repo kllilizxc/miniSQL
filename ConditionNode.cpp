@@ -9,7 +9,7 @@ ConditionNode::ConditionNode(ConditionNode::conType type) : type(type), left(NUL
 
 ConditionNode::ConditionNode(int value, ConditionNode::conType type) : value(new int(value)), type(type), left(NULL), right(NULL){ }
 
-ConditionNode::ConditionNode(double value, ConditionNode::conType type) : value(new double(value)), type(type) { }
+ConditionNode::ConditionNode(float value, ConditionNode::conType type) : value(new float(value)), type(type) { }
 
 ConditionNode::ConditionNode(string value, ConditionNode::conType type) : value(new string(value)), type(type), left(NULL), right(NULL) { }
 

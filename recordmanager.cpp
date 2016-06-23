@@ -114,6 +114,10 @@ STATUS CreateTableFile(string fileName, string nextFileName, string prevFileName
 	}
 }
 
+DbInfo *GetDbInfo(string DbName) {
+
+}
+
 STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 	//open file
 	size_t *pptrs = new size_t();

@@ -41,11 +41,11 @@ int main() {
         char action = cin.peek();
         if (action == 'x') {
             cin.ignore(1);
-            char inputFile[10];
+            char inputFile[100];
             cin >> inputFile;
             ifstream in;
             in.open(inputFile);
-            char instructions[100];
+            char instructions[1000];
             char c;
             while (in.peek() != EOF, !in.eof()) {
                 int i = 0;

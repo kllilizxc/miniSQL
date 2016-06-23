@@ -40,8 +40,8 @@ symbols Token::smb[] = {
 };
 
 combinedSymbols Token::csmb[] = {
-        {Token::AND, "&&"},
-        {Token::OR,  "||"},
+        {Token::AND, "and"},
+        {Token::OR,  "or"},
         {Token::NEQ, "<>"},
         {Token::BET, ">="},
         {Token::LET, "<="}

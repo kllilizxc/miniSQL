@@ -162,7 +162,7 @@ char *Lexer::peekCombinedSymbol() {
         symbol[i] = nextChar;
         i++;
         nextChar = instr[index + off +i];
-    } while (nextChar != END && !isspace(nextChar) && !isalnum(nextChar));
+    } while (nextChar != END && !isspace(nextChar) && !isalnum(nextChar) && (nextChar != '\''));
     symbol[i] = '\0';
     return symbol;
 }
@@ -179,7 +179,7 @@ char *Lexer::getCombinedSymbol() {
     do {
         symbol[i++] = crtChar;
         advance();
-    } while (crtChar != END && !isspace(crtChar) && !isalnum(crtChar));
+    } while (crtChar != END && !isspace(crtChar) && !isalnum(crtChar) && (crtChar != '\''));
     symbol[i] = '\0';
     return symbol;
 }

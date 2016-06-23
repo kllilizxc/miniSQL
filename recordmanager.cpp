@@ -103,18 +103,18 @@ STATUS CreateTableFile(string fileName, string nextFileName, string prevFileName
 	}
 }
 
-//DbInfo *GetDbInfo(string DbName) {
+//DbInfo *RecordManager::GetDbInfo(string DbName) {
 //	if (DbInfos.find(DbName) == DbInfos.end()) {
 //		//not found
 //		if (DbInfos.size() >= 128) {
-//			for (BufferMap::iterator iter = DbInfos.begin(); iter != DbInfos.end(); ++iter) {
+//			for (map<string, DbInfo*>::iterator iter = DbInfos.begin(); iter != DbInfos.end(); ++iter) {
 //				if (iter->second->RefNum <= 0) {
 //					delete iter->second;
 //					DbInfos.erase(iter->first);
 //				}
 //			}
 //		}
-//		DbInfos[DbName] = new BufferTable(DbName, tableMeta);
+//		DbInfos[DbName] = new BufferTable(DbName);
 //	}
 //	++DbInfos[DbName]->RefNum;
 //	return DbInfos[DbName];

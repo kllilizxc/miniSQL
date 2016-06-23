@@ -28,4 +28,5 @@ public:
     static vector<TableRow*> GetRecords(TableMeta tableMeta, vector<int> attrIndex, ConditionNode *condition);
     static int DeleteRecords(TableMeta tableMeta, ConditionNode *condition);
     static map<string, DbInfo*> DbInfos;
+    static DbInfo *GetDbInfo(string DbName);
 };

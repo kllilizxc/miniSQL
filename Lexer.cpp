@@ -45,18 +45,15 @@ const Token Lexer::getNextToken() {
             else return Token(static_cast<int>(num));
         }
 
-        //combined sumbols
-        char *symbols = peekCombinedSymbol();
-        for (int k = 0; k < Token::COMBINED_SYMBOLS_NUM; ++k) {
-            if (!strcmp(symbols, Token::csmb[k].symbol)) {
-                getCombinedSymbol();
-                return Token(Token::csmb[k].type);
-            }
-        }
-
         //keyword 或 变量 等
         if (isalpha(crtChar)) {
             char *keyword1 = getKeyword();
+            if(!strcmp(keyword1, "and")) {
+                return Token(Token::AND);
+            } else if(!strcmp(keyword1, "or")) {
+                return Token(Token::OR);
+            }
+
             for (int i = 0; i < Token::SINGLE_KEY_KEYWORDS_NUM; ++i) {
                 if (!strcmp(keyword1, Token::skk[i].key)) {
                     return Token(Token::skk[i].type);
@@ -88,6 +85,14 @@ const Token Lexer::getNextToken() {
         }
         //标点符号
 
+        //combined sumbols
+        char *symbols = peekCombinedSymbol();
+        for (int k = 0; k < Token::COMBINED_SYMBOLS_NUM; ++k) {
+            if (!strcmp(symbols, Token::csmb[k].symbol)) {
+                getCombinedSymbol();
+                return Token(Token::csmb[k].type);
+            }
+        }
         char symbol = getSymbol();
         for (int l = 0; l < Token::SYMBOLS_NUM; ++l) {
             if (symbol == Token::smb[l].symbol) {

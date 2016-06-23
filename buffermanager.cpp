@@ -15,11 +15,11 @@ using namespace std;
 
 BufferTable::BufferMap BufferTable::BuffList;
 
-BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
+BufferTable::BufferTable(string fileName, TableMeta *tableMeta) {
 	//cout << "-------------" << endl;
 	IsDirty = false;
 	RefNum = 0;
-	attrs = tableMeta.attrs;
+	attrs = tableMeta->attrs;
 	//read file
 	uint32_t TempRecOffset;
 	uint32_t TempInnerOffset;
@@ -242,7 +242,7 @@ STATUS BufferTable::WriteBack() {
 };
 
 
-BufferTable *BufferTable::ReadTable(string fileName, TableMeta tableMeta) {
+BufferTable *BufferTable::ReadTable(string fileName, TableMeta *tableMeta) {
 	if (BuffList.find(fileName) == BuffList.end()) {
 		//not found
 		if (BuffList.size() >= 128) {

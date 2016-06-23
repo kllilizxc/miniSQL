@@ -12,7 +12,7 @@ enum STATUS {
 class BufferTable {
 public:
 	typedef std::map<string, BufferTable*> BufferMap;//这种释放策略坑
-	BufferTable(string fileName, TableMeta tableMeta);
+	BufferTable(string fileName, TableMeta *tableMeta);
 
 	void Release();
 
@@ -35,7 +35,7 @@ public:
 	bool IsDirty;
 	int RefNum;
 	STATUS WriteBack();
-	static BufferTable *ReadTable(string fileName, TableMeta tableMeta);
+	static BufferTable *ReadTable(string fileName, TableMeta *tableMeta);
 	static STATUS WriteBackAll();
 private:
 	static BufferMap BuffList;

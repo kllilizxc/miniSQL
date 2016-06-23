@@ -184,20 +184,20 @@ void RecordManager::WriteBackAll() {
 	}
 };
 
-STATUS RecordManager::CreateTable(TableMeta tableMeta) {
+STATUS RecordManager::CreateTable(TableMeta *tableMeta) {
 	//process
 	DbInfo *Dbinfo = GetDbInfo(DB_NAME, DB_FILE_NAME);
 	//construct new record
 	DbInfoRec TempDbInfoRec;
 	char IdBuff[9];
-	if (Dbinfo->DbInfoRecs.find(tableMeta.id) != Dbinfo->DbInfoRecs.end()) {
+	if (Dbinfo->DbInfoRecs.find(tableMeta->id) != Dbinfo->DbInfoRecs.end()) {
 		//cout << "this table exist" << endl;
 		return EXIST;
 	}
-	TempDbInfoRec.id = tableMeta.id;
-	snprintf(IdBuff, sizeof(IdBuff), "%x", tableMeta.id);
+	TempDbInfoRec.id = tableMeta->id;
+	snprintf(IdBuff, sizeof(IdBuff), "%x", tableMeta->id);
 	TempDbInfoRec.HeadFileName = DB_NAME + string(".") + string(IdBuff) + string(".dbt.000");
-	Dbinfo->DbInfoRecs[tableMeta.id] = TempDbInfoRec;
+	Dbinfo->DbInfoRecs[tableMeta->id] = TempDbInfoRec;
 	Dbinfo->TableNum++;
 	//create table file
 	CreateTableFile(TempDbInfoRec.HeadFileName, "", "", 0, 0);
@@ -225,14 +225,14 @@ char *IncreaseLastNumbers(const char *str, int size) {
 	return c;
 }
 
-int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
+int RecordManager::InsertRecords(TableMeta *tableMeta, TableRow *tableRow) {
 	//open file
 	DbInfo *Dbinfo = GetDbInfo(DB_NAME, DB_FILE_NAME);
 	//not found
-	if (Dbinfo->DbInfoRecs.find(tableMeta.id) == Dbinfo->DbInfoRecs.end()) {
+	if (Dbinfo->DbInfoRecs.find(tableMeta->id) == Dbinfo->DbInfoRecs.end()) {
 		return 0;
 	}
-	string TableFileName = Dbinfo->DbInfoRecs[tableMeta.id].HeadFileName;
+	string TableFileName = Dbinfo->DbInfoRecs[tableMeta->id].HeadFileName;
 	BufferTable *InsertableTable;
 	string TempTableFileName;
 	while(1) {//如果在dbi中保持一个文件尾指针会更快但是懒。。。
@@ -246,7 +246,7 @@ int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
 			TableFileName = InsertableTable->NextFileName;
 			if (!strlen(TableFileName.data())) {//下一文件为空
 				char IdBuff[9];
-				snprintf(IdBuff, sizeof(IdBuff), "%x", tableMeta.id);
+				snprintf(IdBuff, sizeof(IdBuff), "%x", tableMeta->id);
 				TempTableFileName = DB_NAME + string(".") + string(IdBuff) + string(".dbt.") + IncreaseLastNumbers(InsertableTable->NextFileName.data(), 3);
 				//这里要手动改脏数据不优雅
 				InsertableTable->NextFileName = TempTableFileName;
@@ -382,18 +382,18 @@ bool HandleCondtion(TableRow* tableRow, ConditionNode *condition) {
 	}
 }
 
-vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> attrIndex, ConditionNode *condition) {
+vector<TableRow*> RecordManager::GetRecords(TableMeta *tableMeta, vector<int> attrIndex, ConditionNode *condition) {
 	vector<TableRow*> Finale;
 	//这还不能直接push指针，还得复制内存woc(深拷贝)
 	//先不写index
 	//open file是复制insert的，不优雅
 	DbInfo *Dbinfo = GetDbInfo(DB_NAME, DB_FILE_NAME);
 	//not found
-	if (Dbinfo->DbInfoRecs.find(tableMeta.id) == Dbinfo->DbInfoRecs.end()) {
+	if (Dbinfo->DbInfoRecs.find(tableMeta->id) == Dbinfo->DbInfoRecs.end()) {
 		return Finale;
 	}
 	//no index
-	string TableFileName = Dbinfo->DbInfoRecs[tableMeta.id].HeadFileName;
+	string TableFileName = Dbinfo->DbInfoRecs[tableMeta->id].HeadFileName;
 	BufferTable *TempTable;
 	string TempTableFileName;
 	while (strlen(TableFileName.data())) {
@@ -412,15 +412,15 @@ vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> att
 	return Finale;
 }
 
-int RecordManager::DeleteRecords(TableMeta tableMeta, ConditionNode *condition) {
+int RecordManager::DeleteRecords(TableMeta *tableMeta, ConditionNode *condition) {
 	int DelRecords = 0;
 	DbInfo *Dbinfo = GetDbInfo(DB_NAME, DB_FILE_NAME);
 	//not found
-	if (Dbinfo->DbInfoRecs.find(tableMeta.id) == Dbinfo->DbInfoRecs.end()) {
+	if (Dbinfo->DbInfoRecs.find(tableMeta->id) == Dbinfo->DbInfoRecs.end()) {
 		return 0;
 	}
 	//no index
-	string TableFileName = Dbinfo->DbInfoRecs[tableMeta.id].HeadFileName;
+	string TableFileName = Dbinfo->DbInfoRecs[tableMeta->id].HeadFileName;
 	BufferTable *TempTable;
 	string TempTableFileName;
 	while (strlen(TableFileName.data())) {

@@ -120,7 +120,7 @@ void Interpreter::createTable() {
 
     }
     TableMeta *table = catalogManager->findTableMetaFromId(tableId);
-    RecordManager::CreateTable(*table);
+    RecordManager::CreateTable(table);
 
     if (getNextToken().type == Token::SEMI) interpret();
 }
@@ -208,7 +208,7 @@ void Interpreter::select() {
     }
 
     vector<TableRow *> rows;
-    rows = RecordManager::GetRecords(*tableMeta, attrIndexes, con);
+    rows = RecordManager::GetRecords(tableMeta, attrIndexes, con);
 
     cout << "----------------------------------" << endl;
     for (int j = 0; j < rows.size(); ++j) {
@@ -274,7 +274,7 @@ void Interpreter::insertInto() {
                 throw error("value or , or )", temp.type);
         }
     }
-    RecordManager::InsertRecords(*tableMeta, &tableRow);
+    RecordManager::InsertRecords(tableMeta, &tableRow);
     if (getNextToken().type == Token::SEMI) interpret();
 
 }
@@ -294,7 +294,7 @@ void Interpreter::deleteFrom() {
     }
     else if (temp.type == Token::EOI);
     else throw error("where", temp.type);
-    RecordManager::DeleteRecords(*tableMeta, con);
+    RecordManager::DeleteRecords(tableMeta, con);
     interpret();
 
 }

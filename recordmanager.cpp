@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -12,6 +13,8 @@
 
 const string DB_FILE_NAME = "test_db.dbi";
 const string DB_NAME = "test_db";
+
+map<string, DbInfo*> RecordManager::DbInfos;
 
 char *ConstructTableFileHead(string nextFileName, string prevFileName, uint32_t recCount, uint32_t headRecOffset) {
 	char *memblock = new char[72];

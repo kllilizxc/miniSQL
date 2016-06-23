@@ -26,20 +26,6 @@ char *ConstructTableFileHead(string nextFileName, string prevFileName, uint32_t 
 	return memblock;
 }
 
-struct DbInfoRec {
-	uint32_t id;
-	string HeadFileName;
-};
-
-class DbInfo {
-public:
-	DbInfo(char* memblock);
-	string DbName;
-	uint32_t TableNum;
-	map<uint32_t, DbInfoRec> DbInfoRecs;
-	char * ConvertToMemblock(size_t*);
-};
-
 DbInfo::DbInfo(char* memblock) {
 	//char dbname[32]|uint32_t tablenum|uint32_t id|char HeadFileName[32]|id|HeadFileName 写入 <dbname>.dbi (db info)
 	const uint32_t HeadOffset = 36;
@@ -117,9 +103,22 @@ STATUS CreateTableFile(string fileName, string nextFileName, string prevFileName
 	}
 }
 
-DbInfo *GetDbInfo(string DbName) {
-
-}
+//DbInfo *GetDbInfo(string DbName) {
+//	if (DbInfos.find(DbName) == DbInfos.end()) {
+//		//not found
+//		if (DbInfos.size() >= 128) {
+//			for (BufferMap::iterator iter = DbInfos.begin(); iter != DbInfos.end(); ++iter) {
+//				if (iter->second->RefNum <= 0) {
+//					delete iter->second;
+//					DbInfos.erase(iter->first);
+//				}
+//			}
+//		}
+//		DbInfos[DbName] = new BufferTable(DbName, tableMeta);
+//	}
+//	++DbInfos[DbName]->RefNum;
+//	return DbInfos[DbName];
+//}
 
 STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 	//open file

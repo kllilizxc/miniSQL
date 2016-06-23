@@ -7,6 +7,20 @@
 #include "buffermanager.h"
 #include "ConditionNode.h"
 
+struct DbInfoRec {
+    uint32_t id;
+    string HeadFileName;
+};
+
+class DbInfo {
+public:
+    DbInfo(char* memblock);
+    string DbName;
+    uint32_t TableNum;
+    map<uint32_t, DbInfoRec> DbInfoRecs;
+    char * ConvertToMemblock(size_t*);
+};
+
 class RecordManager {
 public:
     static STATUS CreateTable(TableMeta tableMeta);

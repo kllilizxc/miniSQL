@@ -121,7 +121,7 @@ char *Lexer::getKeyword() {
     do {
         keyword[i++] = crtChar;
         advance();
-    } while (crtChar != END && isalnum(crtChar));
+    } while (crtChar != END && (isalnum(crtChar) || crtChar == '-'));
     keyword[i] = '\0';
     return keyword;
 }

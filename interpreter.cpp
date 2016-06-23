@@ -375,7 +375,7 @@ ConditionNode *Interpreter::buildConditionTree(TableMeta &table) {
             case Token::EOI:
                 return left;
             default:
-                throw error("&& or ||", op.type);
+                throw error("and、 or", op.type);
         }
         ConditionNode *right = buildFactor(table);
         node->left = left;

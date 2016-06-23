@@ -257,11 +257,9 @@ void Interpreter::insertInto() {
                 cout << temp.Float();
                 tableRow.append(new TableCell(temp.Float()));
                 break;
-            case Token::SQ: {
-                const Token temp2 = getNextToken();
-                cout << "'" << temp2.String() << "'";
-                getNextToken(Token::SQ);
-                const char *data = temp2.String().data();
+            case Token::STRING: {
+                cout << "'" << temp.String() << "'";
+                const char *data = temp.String().data();
                 tableRow.append(new TableCell(data, strlen(data) + 1));
                 break;
             }
@@ -318,10 +316,8 @@ ConditionNode *Interpreter::buildTerm(TableMeta &table) {
         case Token::FLOATNUM: {
             return new ConditionNode(temp.Float());
         }
-        case Token::SQ: {
-            temp = getNextToken(Token::ID);
+        case Token::STRING: {
             ConditionNode *node = new ConditionNode(temp.String());
-            getNextToken(Token::SQ);
             return node;
         }
         default:

@@ -64,6 +64,19 @@ const Token Lexer::getNextToken() {
             return Token(keyword1, Token::ID);
         }
 
+        if(crtChar == '\'') {
+            //string
+            char str[100];
+            int i = 0;
+            advance();
+            while (crtChar != '\'') {
+                str[i++] = crtChar;
+                advance();
+            }
+            str[i] = '\0';
+            advance();
+            return Token(str, Token::STRING);
+        }
         //标点符号
         char *symbols = peekCombinedSymbol();
         for (int k = 0; k < Token::COMBINED_SYMBOLS_NUM; ++k) {

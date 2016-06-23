@@ -12,6 +12,7 @@ int main() {
     //char instr[] = "insert into sad values(123, 23.21, 'asc' )";
     //char instr[] = "delete from A where";
     //char instr[] = "create index I on A (a, b, c)";
+    //char instr[] = "a<=1 3>v >= asd<>4";
 
 //    Lexer lexer(instr);
 //
@@ -23,7 +24,7 @@ int main() {
 //                cout << " : " << t.Int();
 //                break;
 //            case Token::FLOAT:
-//                cout << " : " << t.Double();
+//                cout << " : " << t.Float();
 //                break;
 //            case Token::ID:
 //                cout << " : " << t.String();
@@ -34,6 +35,8 @@ int main() {
 //        cout << endl;
 //        t = lexer.getNextToken();
 //    }
+
+
     char instr[100];
     Interpreter *interpreter = new Interpreter;
     while (1) {

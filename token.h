@@ -32,7 +32,7 @@ public:
         AND, OR, NOT, //逻辑符号 27
         PRIMARY,UNIQUE, //表属性 30
         INT, FLOAT, CHAR, //数据类型 32
-        EOI, ERROR, STAR //其他 35
+        EOI, ERROR, STAR, STRING //其他 35
     };
 
     static singleKeyKeywords skk[];

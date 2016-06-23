@@ -16,7 +16,7 @@ using namespace std;
 BufferTable::BufferMap BufferTable::BuffList;
 
 BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
-	cout << "-------------" << endl;
+	//cout << "-------------" << endl;
 	IsDirty = false;
 	RefNum = 0;
 	attrs = tableMeta.attrs;
@@ -100,26 +100,26 @@ BufferTable::BufferTable(string fileName, TableMeta tableMeta) {
 				TempTableRow->append(TempTableCell);
 			}
 		}
-		cout << (int)TempTableRow->IsEmpty << " | ";
-		for (TableCell *ptr = TempTableRow->head; ptr != TempTableRow->end; ptr = ptr->Next) {
-			switch (ptr->type) {
-				case TableMeta::INT:
-					cout << *(ptr->ip);
-					break;
-				case TableMeta::FLOAT:
-					cout << *(ptr->fp);
-					break;
-				case TableMeta::CHAR:
-					cout << ptr->cp;
-					break;
-			}
-			cout << " | ";
-		}
-		cout << endl;
+//		cout << (int)TempTableRow->IsEmpty << " | ";
+//		for (TableCell *ptr = TempTableRow->head; ptr != TempTableRow->end; ptr = ptr->Next) {
+//			switch (ptr->type) {
+//				case TableMeta::INT:
+//					cout << *(ptr->ip);
+//					break;
+//				case TableMeta::FLOAT:
+//					cout << *(ptr->fp);
+//					break;
+//				case TableMeta::CHAR:
+//					cout << ptr->cp;
+//					break;
+//			}
+//			cout << " | ";
+//		}
+//		cout << endl;
 		Table.push_back(TempTableRow);
 		TempRecOffset += RecLength;
 	}
-	cout << "-------------" << endl;
+//	cout << "-------------" << endl;
 	//release
 	delete[] memblock;
 };
@@ -154,7 +154,7 @@ STATUS BufferTable::Del(uint32_t recOffset) {
 };
 
 STATUS BufferTable::Del(TableRow *tableRow) {
-	cout << "delete one!" << endl;
+	//cout << "delete one!" << endl;
 	tableRow->IsEmpty = 1;
 	IsDirty = true;
 	return SUCCESS;
@@ -185,7 +185,7 @@ STATUS BufferTable::WriteBack() {
 	for (vector<TableRow*>::iterator titer = Table.begin(); titer != Table.end(); ++titer) {
 		if ((*titer)->IsEmpty == 1) {
 			//若为空
-			cout << "is empty" << endl;
+			//cout << "is empty" << endl;
 			memcpy(memblock + TempRecOffset, empty, 1);
 			vector<uint32_t>::iterator iit = InnerOffsets.begin();
 			for (vector<Attr>::iterator ait = attrs.begin(); ait != attrs.end() && iit != InnerOffsets.end(); ++ait, ++iit) {
@@ -205,7 +205,7 @@ STATUS BufferTable::WriteBack() {
 			}
 		}
 		else {
-			cout << "is full" << endl;
+			//cout << "is full" << endl;
 			memcpy(memblock + TempRecOffset, full, 1);
 			vector<uint32_t>::iterator iit = InnerOffsets.begin();
 			for (TableCell *ptr = (*titer)->head; ptr != (*titer)->end && iit != InnerOffsets.end(); ptr = ptr->Next, ++iit) {

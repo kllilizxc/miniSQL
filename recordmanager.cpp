@@ -28,6 +28,7 @@ char *ConstructTableFileHead(string nextFileName, string prevFileName, uint32_t 
 
 DbInfo::DbInfo(char* memblock) {
 	//char dbname[32]|uint32_t tablenum|uint32_t id|char HeadFileName[32]|id|HeadFileName 写入 <dbname>.dbi (db info)
+	RefNum = 0;
 	const uint32_t HeadOffset = 36;
 	const uint32_t RecLength = 36;
 
@@ -103,69 +104,54 @@ STATUS CreateTableFile(string fileName, string nextFileName, string prevFileName
 	}
 }
 
-//DbInfo *RecordManager::GetDbInfo(string DbName) {
-//	if (DbInfos.find(DbName) == DbInfos.end()) {
-//		//not found
-//		if (DbInfos.size() >= 128) {
-//			for (map<string, DbInfo*>::iterator iter = DbInfos.begin(); iter != DbInfos.end(); ++iter) {
-//				if (iter->second->RefNum <= 0) {
-//					delete iter->second;
-//					DbInfos.erase(iter->first);
-//				}
-//			}
-//		}
-//		DbInfos[DbName] = new BufferTable(DbName);
-//	}
-//	++DbInfos[DbName]->RefNum;
-//	return DbInfos[DbName];
-//}
+DbInfo *RecordManager::GetDbInfo(string dbName, string dbFileName) {//懒得写引用计数
+	if (DbInfos.find(dbFileName) == DbInfos.end()) {
+		//not found
+		if (DbInfos.size() >= 128) {
+			for (map<string, DbInfo*>::iterator iter = DbInfos.begin(); iter != DbInfos.end(); ++iter) {
+				if(iter->second->RefNum <= 0) {
+					delete iter->second;
+					DbInfos.erase(iter->first);
+				}
+			}
+		}
 
-STATUS RecordManager::CreateTable(TableMeta tableMeta) {
-	//open file
-	size_t *pptrs = new size_t();
-	size_t size1;
-	streampos size;
-	char *memblock;
-	ifstream DbInfoFile(DB_FILE_NAME.data(), ios::in | ios::binary | ios::ate);
-	if (!DbInfoFile.is_open()) {
-		//cout << "open failed. try to create." << endl;
-		if(CreateDbInfo(DB_NAME, DB_FILE_NAME) == ERROR)
-			return ERROR;
-		DbInfoFile.open(DB_FILE_NAME.data(), ios::in | ios::binary | ios::ate);
-	}
+		//open file
+		streampos size;
+		char *memblock;
+		ifstream DbInfoFile(dbFileName.data(), ios::in | ios::binary | ios::ate);
+		if (!DbInfoFile.is_open()) {
+			//cout << "open failed. try to create." << endl;
+			if(CreateDbInfo(dbName, dbFileName) == ERROR)
+				return NULL;
+			DbInfoFile.open(dbFileName.data(), ios::in | ios::binary | ios::ate);
+		}
 
-	if (DbInfoFile.is_open()) {
-		size = DbInfoFile.tellg();
-		memblock = new char[size];
-		DbInfoFile.seekg(0, ios::beg);
-		DbInfoFile.read(memblock, size);
-		DbInfoFile.close();
-		//cout << "opened dbinfo" << DB_FILE_NAME << endl;
+		if (DbInfoFile.is_open()) {
+			size = DbInfoFile.tellg();
+			memblock = new char[size];
+			DbInfoFile.seekg(0, ios::beg);
+			DbInfoFile.read(memblock, size);
+			DbInfoFile.close();
+			//cout << "opened dbinfo" << DB_FILE_NAME << endl;
+		}
+		else {
+			//cout << "open failed due to unknow." << endl;
+			return NULL;
+		}
+		//process
+		DbInfos[dbFileName] = new DbInfo(memblock);
+		delete[] memblock;
 	}
-	else {
-		//cout << "open failed due to unknow." << endl;
-		return ERROR;
-	}
-	//process
-	DbInfo Dbinfo(memblock);
-	delete[] memblock;
-	//construct new record
-	DbInfoRec TempDbInfoRec;
-	char IdBuff[9];
-	if (Dbinfo.DbInfoRecs.find(tableMeta.id) != Dbinfo.DbInfoRecs.end()) {
-		//cout << "this table exist" << endl;
-		return EXIST;
-	}
-	TempDbInfoRec.id = tableMeta.id;
-	snprintf(IdBuff, sizeof(IdBuff), "%x", tableMeta.id);
-	TempDbInfoRec.HeadFileName = DB_NAME + string(".") + string(IdBuff) + string(".dbt.000");
-	Dbinfo.DbInfoRecs[tableMeta.id] = TempDbInfoRec;
-	Dbinfo.TableNum++;
-	//create table file
-	CreateTableFile(TempDbInfoRec.HeadFileName, "", "", 0, 0);
+	DbInfos[dbFileName]->RefNum++;
+	return DbInfos[dbFileName];
+}
+
+void DbInfo::WriteBack() {
 	//write back to db info
-
-	memblock = Dbinfo.ConvertToMemblock(pptrs);
+	char *memblock = NULL;
+	size_t *pptrs = new size_t();
+	memblock = ConvertToMemblock(pptrs);
 	ofstream file(DB_FILE_NAME.data(), ios::out | ios::binary);
 	if (file.is_open())
 	{
@@ -175,12 +161,48 @@ STATUS RecordManager::CreateTable(TableMeta tableMeta) {
 		delete[] memblock;
 
 		//cout << "the entire file content is written to disk." << endl;
-		return SUCCESS;
 	}
-	else { 
+	else {
 		//cout << "Unable to open file" << endl;
-		return ERROR;
 	}
+};
+
+void DbInfo::Release() {
+	RefNum--;
+}
+
+DbInfo::~DbInfo() {
+	WriteBack();
+}
+
+void RecordManager::WriteBackAll() {
+	for (map<string, DbInfo*>::iterator iter = DbInfos.begin(); iter != DbInfos.end(); ++iter) {
+		if (iter->second->RefNum <= 0) {
+			delete iter->second;
+			DbInfos.erase(iter->first);
+		}
+	}
+};
+
+STATUS RecordManager::CreateTable(TableMeta tableMeta) {
+	//process
+	DbInfo *Dbinfo = GetDbInfo(DB_NAME, DB_FILE_NAME);
+	//construct new record
+	DbInfoRec TempDbInfoRec;
+	char IdBuff[9];
+	if (Dbinfo->DbInfoRecs.find(tableMeta.id) != Dbinfo->DbInfoRecs.end()) {
+		//cout << "this table exist" << endl;
+		return EXIST;
+	}
+	TempDbInfoRec.id = tableMeta.id;
+	snprintf(IdBuff, sizeof(IdBuff), "%x", tableMeta.id);
+	TempDbInfoRec.HeadFileName = DB_NAME + string(".") + string(IdBuff) + string(".dbt.000");
+	Dbinfo->DbInfoRecs[tableMeta.id] = TempDbInfoRec;
+	Dbinfo->TableNum++;
+	//create table file
+	CreateTableFile(TempDbInfoRec.HeadFileName, "", "", 0, 0);
+	Dbinfo->Release();
+	return SUCCESS;
 }
 
 char *IncreaseLastNumbers(const char *str, int size) {
@@ -205,28 +227,12 @@ char *IncreaseLastNumbers(const char *str, int size) {
 
 int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
 	//open file
-	streampos size;
-	char *memblock;
-	ifstream DbInfoFile(DB_FILE_NAME.data(), ios::in | ios::binary | ios::ate);
-	if (DbInfoFile.is_open()) {
-		size = DbInfoFile.tellg();
-		memblock = new char[size];
-		DbInfoFile.seekg(0, ios::beg);
-		DbInfoFile.read(memblock, size);
-		DbInfoFile.close();
-		//cout << "opened dbinfo" << DB_FILE_NAME << endl;
-	}
-	else {
-		//cout << "open failed due to unknow." << endl;
-		return ERROR;
-	}
-	DbInfo Dbinfo(memblock);
-	delete[] memblock;
+	DbInfo *Dbinfo = GetDbInfo(DB_NAME, DB_FILE_NAME);
 	//not found
-	if (Dbinfo.DbInfoRecs.find(tableMeta.id) == Dbinfo.DbInfoRecs.end()) {
+	if (Dbinfo->DbInfoRecs.find(tableMeta.id) == Dbinfo->DbInfoRecs.end()) {
 		return 0;
 	}
-	string TableFileName = Dbinfo.DbInfoRecs[tableMeta.id].HeadFileName;
+	string TableFileName = Dbinfo->DbInfoRecs[tableMeta.id].HeadFileName;
 	BufferTable *InsertableTable;
 	string TempTableFileName;
 	while(1) {//如果在dbi中保持一个文件尾指针会更快但是懒。。。
@@ -254,6 +260,7 @@ int RecordManager::InsertRecords(TableMeta tableMeta, TableRow *tableRow) {
 	}
 	InsertableTable->Push(tableRow);
 	InsertableTable->Release();
+	Dbinfo->Release();
 	return 1;
 }
 
@@ -380,29 +387,13 @@ vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> att
 	//这还不能直接push指针，还得复制内存woc(深拷贝)
 	//先不写index
 	//open file是复制insert的，不优雅
-	streampos size;
-	char *memblock;
-	ifstream DbInfoFile(DB_FILE_NAME.data(), ios::in | ios::binary | ios::ate);
-	if (DbInfoFile.is_open()) {
-		size = DbInfoFile.tellg();
-		memblock = new char[size];
-		DbInfoFile.seekg(0, ios::beg);
-		DbInfoFile.read(memblock, size);
-		DbInfoFile.close();
-		//cout << "opened dbinfo" << DB_FILE_NAME << endl;
-	}
-	else {
-		//cout << "open failed due to unknow." << endl;
-		return Finale;
-	}
-	DbInfo Dbinfo(memblock);
-	delete[] memblock;
+	DbInfo *Dbinfo = GetDbInfo(DB_NAME, DB_FILE_NAME);
 	//not found
-	if (Dbinfo.DbInfoRecs.find(tableMeta.id) == Dbinfo.DbInfoRecs.end()) {
+	if (Dbinfo->DbInfoRecs.find(tableMeta.id) == Dbinfo->DbInfoRecs.end()) {
 		return Finale;
 	}
 	//no index
-	string TableFileName = Dbinfo.DbInfoRecs[tableMeta.id].HeadFileName;
+	string TableFileName = Dbinfo->DbInfoRecs[tableMeta.id].HeadFileName;
 	BufferTable *TempTable;
 	string TempTableFileName;
 	while (strlen(TableFileName.data())) {
@@ -417,35 +408,19 @@ vector<TableRow*> RecordManager::GetRecords(TableMeta tableMeta, vector<int> att
 		TableFileName = TempTable->NextFileName;
 		TempTable->Release();
 	}
+	Dbinfo->Release();
 	return Finale;
 }
 
 int RecordManager::DeleteRecords(TableMeta tableMeta, ConditionNode *condition) {
 	int DelRecords = 0;
-	//一样是复制的。。。
-	streampos size;
-	char *memblock;
-	ifstream DbInfoFile(DB_FILE_NAME.data(), ios::in | ios::binary | ios::ate);
-	if (DbInfoFile.is_open()) {
-		size = DbInfoFile.tellg();
-		memblock = new char[size];
-		DbInfoFile.seekg(0, ios::beg);
-		DbInfoFile.read(memblock, size);
-		DbInfoFile.close();
-		//cout << "opened dbinfo" << DB_FILE_NAME << endl;
-	}
-	else {
-		//cout << "open failed due to unknow." << endl;
-		return 0;
-	}
-	DbInfo Dbinfo(memblock);
-	delete[] memblock;
+	DbInfo *Dbinfo = GetDbInfo(DB_NAME, DB_FILE_NAME);
 	//not found
-	if (Dbinfo.DbInfoRecs.find(tableMeta.id) == Dbinfo.DbInfoRecs.end()) {
+	if (Dbinfo->DbInfoRecs.find(tableMeta.id) == Dbinfo->DbInfoRecs.end()) {
 		return 0;
 	}
 	//no index
-	string TableFileName = Dbinfo.DbInfoRecs[tableMeta.id].HeadFileName;
+	string TableFileName = Dbinfo->DbInfoRecs[tableMeta.id].HeadFileName;
 	BufferTable *TempTable;
 	string TempTableFileName;
 	while (strlen(TableFileName.data())) {
@@ -459,5 +434,6 @@ int RecordManager::DeleteRecords(TableMeta tableMeta, ConditionNode *condition) 
 		TableFileName = TempTable->NextFileName;
 		TempTable->Release();
 	}
+	Dbinfo->Release();
 	return DelRecords;
 }
